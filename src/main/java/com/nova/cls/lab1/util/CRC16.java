@@ -1,7 +1,5 @@
 package com.nova.cls.lab1.util;
 
-import com.nova.cls.lab1.validators.ByteValidator;
-
 public class CRC16 {
     private static final int[] TABLE = {
             0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
@@ -38,16 +36,11 @@ public class CRC16 {
             0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
     };
 
-    public static int crc16(byte[] bytes, int offset, int length) {
-        ByteValidator.validateSubarrayDimensions(bytes.length, offset, length);
+    public static short crc16(byte[] bytes, int offset, int length) {
         int crc = 0x0000;
         for (int i = offset; i < offset + length; i++) {
-            crc = (crc >>> 8) ^ TABLE[(crc ^ bytes[i]) & 0xff];
+            crc = (crc >>> 8) ^ TABLE[(crc ^ bytes[i]) & 0xFF];
         }
-        return crc;
-    }
-
-    public static int crc16(byte[] bytes) {
-        return crc16(bytes, 0, bytes.length);
+        return (short) crc;
     }
 }

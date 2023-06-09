@@ -36,7 +36,7 @@ public class CipherUtils {
             cipher.init(mode, secretKey);
             return cipher;
         } catch (Exception e) {
-            throw new CipherException(""); // With proper settings, cipher initialization should never fail, so this is non-recoverable
+            throw new CipherException(""); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
         }
     }
 }

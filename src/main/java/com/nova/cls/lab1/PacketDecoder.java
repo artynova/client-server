@@ -1,31 +1,38 @@
 package com.nova.cls.lab1;
 
 import com.nova.cls.lab1.exceptions.BadPacketException;
-import com.nova.cls.lab1.util.ByteUtils;
 import com.nova.cls.lab1.util.Decryptor;
-import com.nova.cls.lab1.validators.PacketValidator;
+import com.nova.cls.lab1.util.PacketValidator;
 
-import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class PacketDecoder {
     private static final Decryptor decryptor = new Decryptor();
 
     public static Packet decode(byte[] bytes) throws BadPacketException {
         try {
-            PacketValidator.validateMinPacketRequirements(bytes);
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+            PacketValidator.validateMinPacketRequirements(buffer);
 
-            long messageLengthLong = ByteUtils.fromUnsignedIntBytes(bytes, 10);
-            PacketValidator.validatePacketSize(bytes, messageLengthLong);
-            int messageLength = (int) messageLengthLong; // has to fit in a signed int because it is length of a byte subarray
-            PacketValidator.validatePacketChecksum(bytes, messageLength);
+            // wLen
+            int messageLength = buffer.getInt(10);
 
-            long commandType = ByteUtils.fromUnsignedIntBytes(bytes, 16);
-            long userId = ByteUtils.fromUnsignedIntBytes(bytes, 20);
-            String body = ByteUtils.fromBytesEncrypted(bytes, 24, messageLength - 8);
+            PacketValidator.validatePacket(buffer, messageLength);
 
+            // cType
+            int commandType = buffer.getInt(16);
+            // bUserId
+            int userId = buffer.getInt(20);
+            // message
+            String body = new String(decryptor.decrypt(bytes, 24, messageLength - Message.BYTES_WITHOUT_BODY), StandardCharsets.UTF_8);
+
+            // bMsq
             Message message = new Message(commandType, userId, body);
-            short source = ByteUtils.fromUnsignedByte(bytes[1]);
-            BigInteger packetId = ByteUtils.fromUnsignedLongBytes(bytes, 2);
+            // bSrc
+            byte source = buffer.get(1);
+            // bPktId
+            long packetId = buffer.getLong(2);
 
             return new Packet(source, packetId, message);
         } catch (Exception e) {

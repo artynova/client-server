@@ -1,5 +1,7 @@
 package com.nova.cls.lab1.util;
 
+import com.nova.cls.lab1.exceptions.CipherException;
+
 import javax.crypto.Cipher;
 
 public class Encryptor {
@@ -13,13 +15,7 @@ public class Encryptor {
         try {
             return cipher.doFinal(bytes, offset, length);
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1); // With proper settings, encryption should never fail, so this is non-recoverable
+            throw new CipherException(e.getMessage(), e); // With proper settings, encryption should never fail, so this is non-recoverable
         }
-        return null;
-    }
-
-    public byte[] encrypt(byte[] bytes) {
-        return encrypt(bytes, 0, bytes.length);
     }
 }

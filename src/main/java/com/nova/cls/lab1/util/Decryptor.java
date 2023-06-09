@@ -14,8 +14,4 @@ public class Decryptor {
     public byte[] decrypt(byte[] bytes, int offset, int length) throws IllegalBlockSizeException, BadPaddingException {
         return cipher.doFinal(bytes, offset, length);
     }
-
-    public byte[] decrypt(byte[] bytes) throws IllegalBlockSizeException, BadPaddingException {
-        return decrypt(bytes, 0, bytes.length);
-    }
 }
