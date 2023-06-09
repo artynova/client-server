@@ -12,18 +12,18 @@ public class Worker extends Thread {
 
     @Override
     public void run() {
-        super.run();
-        for (int i = 0; i < 5; i++) {
-            actInTurn();
-        }
+        try {
+            super.run();
+            for (int i = 0; i < 5; i++) {
+                actInTurn();
+            }
+        } catch (InterruptedException ignore) {} // nothing else to do
     }
 
-    private void actInTurn() {
+    private void actInTurn() throws InterruptedException {
         synchronized (data) {
             while (data.getState() != id) {
-                try {
-                    data.wait();
-                } catch (InterruptedException ignore) {} // nothing to finish
+                data.wait();
             }
             act();
             data.notifyAll();
