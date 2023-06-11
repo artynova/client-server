@@ -1,6 +1,4 @@
-package com.nova.cls.lab1.util;
-
-import com.nova.cls.lab1.exceptions.CipherException;
+package com.nova.cls.lab2.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -36,7 +34,15 @@ public class CipherUtils {
             cipher.init(mode, secretKey);
             return cipher;
         } catch (Exception e) {
-            throw new CipherException(""); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
+            throw new CipherException(e.getMessage(), e); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
+        }
+    }
+
+    public static void resetCipher(Cipher cipher, int mode) {
+        try {
+            cipher.init(mode, secretKey);
+        } catch (Exception e) {
+            throw new CipherException(e.getMessage(), e); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
         }
     }
 }

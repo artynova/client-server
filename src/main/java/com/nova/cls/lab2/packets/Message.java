@@ -1,4 +1,4 @@
-package com.nova.cls.lab1;
+package com.nova.cls.lab2.packets;
 
 import java.util.Objects;
 
@@ -47,5 +47,13 @@ public final class Message {
     @Override
     public int hashCode() {
         return Objects.hash(getCommandType(), getUserId(), getBody());
+    }
+
+    @Override
+    public String toString() {
+        return "Message { " +
+                "commandType = " + getCommandTypeUnsigned() +
+                ", userId = " + getUserIdUnsigned() +
+                ", body = '" + getBody() + "' }";
     }
 }

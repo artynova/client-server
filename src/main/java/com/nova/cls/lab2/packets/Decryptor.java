@@ -1,16 +1,16 @@
-package com.nova.cls.lab1;
+package com.nova.cls.lab2.packets;
 
-import com.nova.cls.lab1.exceptions.BadPacketException;
-import com.nova.cls.lab1.util.Decryptor;
-import com.nova.cls.lab1.util.PacketValidator;
+import com.nova.cls.lab2.util.Decipherer;
+import com.nova.cls.lab2.util.PacketValidator;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public class PacketDecoder {
-    private static final Decryptor decryptor = new Decryptor();
+public class Decryptor {
+    private static final Decipherer DECIPHERER = new Decipherer(); // thread-safe
 
-    public static Packet decode(byte[] bytes) throws BadPacketException {
+    // made to return the request packet instead of passing it along, to centralize chaining stages of packet processing within Receiver
+    public Packet decrypt(byte[] bytes) throws BadPacketException {
         try {
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
             PacketValidator.validateMinPacketRequirements(buffer);
@@ -25,7 +25,7 @@ public class PacketDecoder {
             // bUserId
             int userId = buffer.getInt(20);
             // message
-            String body = new String(decryptor.decrypt(bytes, 24, messageLength - Message.BYTES_WITHOUT_BODY), StandardCharsets.UTF_8);
+            String body = new String(DECIPHERER.decipher(bytes, 24, messageLength - Message.BYTES_WITHOUT_BODY), StandardCharsets.UTF_8);
 
             // bMsq
             Message message = new Message(commandType, userId, body);

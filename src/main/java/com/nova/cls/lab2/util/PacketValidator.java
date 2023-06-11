@@ -1,7 +1,6 @@
-package com.nova.cls.lab1.util;
+package com.nova.cls.lab2.util;
 
-import com.nova.cls.lab1.Packet;
-import com.nova.cls.lab1.util.CRC16;
+import com.nova.cls.lab2.packets.Packet;
 
 import java.nio.ByteBuffer;
 

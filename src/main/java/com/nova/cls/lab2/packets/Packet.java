@@ -1,4 +1,4 @@
-package com.nova.cls.lab1;
+package com.nova.cls.lab2.packets;
 
 import java.math.BigInteger;
 import java.util.Objects;
@@ -50,5 +50,13 @@ public final class Packet {
     @Override
     public int hashCode() {
         return Objects.hash(getSource(), getPacketId(), getMessage());
+    }
+
+    @Override
+    public String toString() {
+        return "Packet { source = " + getSourceUnsigned() +
+                ", packetId = " + getPacketIdUnsigned() +
+                ", message = " + getMessage() +
+                " }";
     }
 }

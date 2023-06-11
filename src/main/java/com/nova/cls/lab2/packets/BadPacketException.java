@@ -1,4 +1,4 @@
-package com.nova.cls.lab1.exceptions;
+package com.nova.cls.lab2.packets;
 
 public class BadPacketException extends Exception {
     public BadPacketException() {

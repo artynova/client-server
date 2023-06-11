@@ -1,4 +1,4 @@
-package com.nova.cls.lab1.util;
+package com.nova.cls.lab2.util;
 
 public class CRC16 {
     private static final int[] TABLE = {

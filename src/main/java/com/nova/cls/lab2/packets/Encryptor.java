@@ -1,16 +1,16 @@
-package com.nova.cls.lab1;
+package com.nova.cls.lab2.packets;
 
-import com.nova.cls.lab1.util.CRC16;
-import com.nova.cls.lab1.util.Encryptor;
+import com.nova.cls.lab2.util.CRC16;
+import com.nova.cls.lab2.util.Cipherer;
 
 import java.nio.ByteBuffer;
 
-public class PacketEncoder {
-    private static final Encryptor encryptor = new Encryptor();
+public class Encryptor {
+    private static final Cipherer CIPHERER = new Cipherer(); // thread-safe
 
-    public static byte[] encode(Packet packet) {
+    public byte[] encrypt(Packet packet) {
         byte[] bodyPlain = packet.getMessage().getBody().getBytes();
-        byte[] bodyEncrypted = encryptor.encrypt(bodyPlain, 0, bodyPlain.length);
+        byte[] bodyEncrypted = CIPHERER.cipher(bodyPlain, 0, bodyPlain.length);
 
         int messageLength = Message.BYTES_WITHOUT_BODY + bodyEncrypted.length;
         int packetLength = Packet.BYTES_WITHOUT_MESSAGE + messageLength;

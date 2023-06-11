@@ -1,6 +1,4 @@
-package com.nova.cls.lab1.exceptions;
-
-import java.security.GeneralSecurityException;
+package com.nova.cls.lab2.util;
 
 public class CipherException extends SecurityException {
     public CipherException() {
