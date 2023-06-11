@@ -1,10 +1,10 @@
 package com.nova.cls.lab2.network.fake;
 
 import com.nova.cls.lab2.logic.Processor;
-import com.nova.cls.lab2.packets.BadPacketException;
-import com.nova.cls.lab2.packets.Decryptor;
-import com.nova.cls.lab2.packets.Encryptor;
-import com.nova.cls.lab2.packets.Packet;
+import com.nova.cls.lab2.network.packets.BadPacketException;
+import com.nova.cls.lab2.network.packets.Decryptor;
+import com.nova.cls.lab2.network.packets.Encryptor;
+import com.nova.cls.lab2.network.packets.Packet;
 
 import java.net.InetAddress;
 

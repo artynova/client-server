@@ -3,8 +3,8 @@ package com.nova.cls.lab2;
 import com.nova.cls.lab2.network.fake.FakeRequestHandler;
 import com.nova.cls.lab2.network.fake.FakeReceiver;
 import com.nova.cls.lab2.network.fake.FakeSender;
-import com.nova.cls.lab2.packets.Message;
-import com.nova.cls.lab2.packets.Packet;
+import com.nova.cls.lab2.network.packets.Message;
+import com.nova.cls.lab2.network.packets.Packet;
 import org.junit.Test;
 
 import java.util.ArrayList;

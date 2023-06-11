@@ -1,9 +1,9 @@
 package com.nova.cls.lab2.network.fake;
 
 import com.nova.cls.lab2.network.Receiver;
-import com.nova.cls.lab2.packets.Encryptor;
-import com.nova.cls.lab2.packets.Message;
-import com.nova.cls.lab2.packets.Packet;
+import com.nova.cls.lab2.network.packets.Encryptor;
+import com.nova.cls.lab2.network.packets.Message;
+import com.nova.cls.lab2.network.packets.Packet;
 import com.nova.cls.lab2.util.ThreadUtils;
 
 import java.net.InetAddress;
@@ -65,7 +65,6 @@ public class FakeReceiver implements Receiver {
     public void receivePacket() {
         Packet request = generateRandomPacket();
         lastHandler = new FakeRequestHandler(encryptor.encrypt(request), STUB_ADDRESS);
-        if (pool.isTerminated()) throw new RuntimeException("Uh oh");
         pool.execute(lastHandler::handle);
         if (verbose)
             System.out.println("Time: " + LocalDateTime.now().toLocalTime() + "\nReceiving " + request + "\nFrom " + STUB_ADDRESS + "\n");

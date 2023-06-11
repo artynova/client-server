@@ -1,4 +1,4 @@
-package com.nova.cls.lab2.packets;
+package com.nova.cls.lab2.network.packets;
 
 import com.nova.cls.lab2.util.Decipherer;
 import com.nova.cls.lab2.util.PacketValidator;

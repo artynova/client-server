@@ -1,6 +1,6 @@
 package com.nova.cls.lab2.util;
 
-import com.nova.cls.lab2.packets.Packet;
+import com.nova.cls.lab2.network.packets.Packet;
 
 import java.nio.ByteBuffer;
 

@@ -1,7 +1,7 @@
 package com.nova.cls.lab2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nova.cls.lab2.packets.*;
+import com.nova.cls.lab2.network.packets.*;
 import com.nova.cls.lab2.util.CRC16;
 import org.junit.Before;
 import org.junit.Test;

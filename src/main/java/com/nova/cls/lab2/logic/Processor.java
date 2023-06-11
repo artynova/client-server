@@ -1,7 +1,7 @@
 package com.nova.cls.lab2.logic;
 
-import com.nova.cls.lab2.packets.Message;
-import com.nova.cls.lab2.packets.Packet;
+import com.nova.cls.lab2.network.packets.Message;
+import com.nova.cls.lab2.network.packets.Packet;
 
 public class Processor {
     // made to return the response packet instead of passing it along, to centralize chaining stages of packet processing within the handler
