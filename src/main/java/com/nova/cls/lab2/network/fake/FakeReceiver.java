@@ -1,5 +1,6 @@
 package com.nova.cls.lab2.network.fake;
 
+import com.nova.cls.lab2.logic.Commands;
 import com.nova.cls.lab2.network.Receiver;
 import com.nova.cls.lab2.network.packets.Encryptor;
 import com.nova.cls.lab2.network.packets.Message;
@@ -52,7 +53,7 @@ public class FakeReceiver implements Receiver {
     }
 
     private static Message generateRandomMessage() {
-        int command = ThreadLocalRandom.current().nextInt();
+        int command = ThreadLocalRandom.current().nextInt(0, 6); // commands
         int userId = ThreadLocalRandom.current().nextInt();
         StringBuilder bodyBuilder = new StringBuilder(ThreadLocalRandom.current().nextInt(4, 64));
         while (bodyBuilder.length() < bodyBuilder.capacity()) {
