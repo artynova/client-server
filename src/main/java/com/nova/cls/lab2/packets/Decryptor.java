@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class Decryptor {
     private static final Decipherer DECIPHERER = new Decipherer(); // thread-safe
 
-    // made to return the request packet instead of passing it along, to centralize chaining stages of packet processing within Receiver
+    // made to return the request packet instead of passing it along, to centralize chaining stages of packet processing within the handler
     public Packet decrypt(byte[] bytes) throws BadPacketException {
         try {
             ByteBuffer buffer = ByteBuffer.wrap(bytes);

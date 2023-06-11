@@ -1,5 +1,6 @@
 package com.nova.cls.lab2;
 
+import com.nova.cls.lab2.network.fake.FakeRequestHandler;
 import com.nova.cls.lab2.network.fake.FakeReceiver;
 import com.nova.cls.lab2.network.fake.FakeSender;
 import com.nova.cls.lab2.packets.Message;
@@ -16,14 +17,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TestRequestProcessing {
-    private static final int TESTING_THREADS = 4;
-    private static final int PACKETS_PER_THREAD = 20;
+    private static final int TESTING_THREADS = 16;
+    private static final int PACKETS_PER_THREAD = 100;
     private static final boolean VERBOSE = true;
 
     @Test
     public void processing() {
         FakeReceiver.setVerbose(VERBOSE);
         FakeSender.setVerbose(VERBOSE);
+        FakeReceiver.initShared();
 
         ExecutorService pool = Executors.newFixedThreadPool(TESTING_THREADS);
         List<Future<Void>> results = new ArrayList<>(TESTING_THREADS);
@@ -37,16 +39,19 @@ public class TestRequestProcessing {
                 fail("Unexpected exception when running thread tests: " + e);
             }
         }
+
+        FakeReceiver.shutdownShared();
     }
 
     private Void executeThreadTest() throws Exception {
         FakeReceiver receiver = new FakeReceiver();
         for (int i = 0; i < PACKETS_PER_THREAD; i++) {
             receiver.receivePacket();
-            synchronized (receiver.getCompletionLock()) {
-                receiver.getCompletionLock().wait();
+            FakeRequestHandler handler = receiver.getLastHandler();
+            synchronized (handler.getLock()) {
+                while (!handler.isDone()) handler.getLock().wait();
             }
-            compareRequestResponse(receiver.getLastReceived(), receiver.getLastSent());
+            compareRequestResponse(handler.getRequest(), handler.getResponse());
         }
         return null;
     }
