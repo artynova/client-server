@@ -3,7 +3,7 @@ package com.nova.cls.lab2.network.fake;
 import com.nova.cls.lab2.network.Receiver;
 
 public class FakeServer {
-    private static final int RECEIVE_PACKETS = 100;
+    private static final int RECEIVE_PACKETS = 1000;
 
     public static void main(String[] args) {
         FakeReceiver.initShared();

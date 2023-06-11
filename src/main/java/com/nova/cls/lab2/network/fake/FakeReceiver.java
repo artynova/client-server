@@ -1,22 +1,19 @@
 package com.nova.cls.lab2.network.fake;
 
-import com.nova.cls.lab2.logic.Commands;
+import com.nova.cls.lab2.network.BatchRequestHandler;
 import com.nova.cls.lab2.network.Receiver;
 import com.nova.cls.lab2.network.packets.Encryptor;
 import com.nova.cls.lab2.network.packets.Message;
 import com.nova.cls.lab2.network.packets.Packet;
-import com.nova.cls.lab2.util.ThreadUtils;
 
 import java.net.InetAddress;
 import java.time.LocalDateTime;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class FakeReceiver implements Receiver {
     private static final InetAddress STUB_ADDRESS = InetAddress.getLoopbackAddress();
     private static boolean verbose = true;
-    private static ExecutorService pool;
+    private static BatchRequestHandler batchHandler;
     private final Encryptor encryptor = new Encryptor();
     private FakeRequestHandler lastHandler;
 
@@ -29,21 +26,21 @@ public class FakeReceiver implements Receiver {
         FakeReceiver.verbose = verbose;
     }
 
-    // initializes the shared thread pool
+    // initializes the shared batch handler
     public static void initShared(int numThreads) {
-        if (pool != null) throw new UnsupportedOperationException("Initializing when already initialized");
-        pool = Executors.newFixedThreadPool(numThreads);
+        if (batchHandler != null) throw new UnsupportedOperationException("Initializing when already initialized");
+        batchHandler = new BatchRequestHandler(numThreads, BatchRequestHandler.DEFAULT_QUEUE_THRESHOLD, BatchRequestHandler.DEFAULT_HANDLE_INTERVAL_MILLIS);
     }
 
     public static void initShared() {
         initShared(Runtime.getRuntime().availableProcessors());
     }
 
-    // shuts down the shared thread pool
+    // shuts down the shared batch handler
     public static void shutdownShared() {
-        if (pool == null) throw new UnsupportedOperationException("Shutting down when not initialized");
-        ThreadUtils.shutdown(pool);
-        pool = null;
+        if (batchHandler == null) throw new UnsupportedOperationException("Shutting down when not initialized");
+        batchHandler.shutdown();
+        batchHandler = null;
     }
 
     private static Packet generateRandomPacket() {
@@ -66,7 +63,10 @@ public class FakeReceiver implements Receiver {
     public void receivePacket() {
         Packet request = generateRandomPacket();
         lastHandler = new FakeRequestHandler(encryptor.encrypt(request), STUB_ADDRESS);
-        pool.execute(lastHandler::handle);
+        if (!batchHandler.offer(lastHandler)) {
+            System.err.println("Incoming packet dropped due to congestion");
+            lastHandler = null;
+        }
         if (verbose)
             System.out.println("Time: " + LocalDateTime.now().toLocalTime() + "\nReceiving " + request + "\nFrom " + STUB_ADDRESS + "\n");
     }

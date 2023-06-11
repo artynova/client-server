@@ -1,6 +1,7 @@
 package com.nova.cls.lab2.network.fake;
 
 import com.nova.cls.lab2.logic.Processor;
+import com.nova.cls.lab2.network.RequestHandler;
 import com.nova.cls.lab2.network.packets.BadPacketException;
 import com.nova.cls.lab2.network.packets.Decryptor;
 import com.nova.cls.lab2.network.packets.Encryptor;
@@ -8,7 +9,7 @@ import com.nova.cls.lab2.network.packets.Packet;
 
 import java.net.InetAddress;
 
-public class FakeRequestHandler {
+public class FakeRequestHandler implements RequestHandler {
     // all 4 statics are thread-safe
     private static final Decryptor decryptor = new Decryptor();
     private static final Processor processor = new Processor();

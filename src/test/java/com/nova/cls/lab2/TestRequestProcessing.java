@@ -1,5 +1,6 @@
 package com.nova.cls.lab2;
 
+import com.nova.cls.lab2.logic.Commands;
 import com.nova.cls.lab2.network.fake.FakeRequestHandler;
 import com.nova.cls.lab2.network.fake.FakeReceiver;
 import com.nova.cls.lab2.network.fake.FakeSender;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TestRequestProcessing {
-    private static final int TESTING_THREADS = 16;
+    private static final int TESTING_THREADS = 25;
     private static final int PACKETS_PER_THREAD = 100;
     private static final boolean VERBOSE = true;
 
@@ -36,6 +37,7 @@ public class TestRequestProcessing {
                 results.get(i).get();
             } catch (Exception e) {
                 e.printStackTrace();
+                FakeReceiver.shutdownShared();
                 fail("Unexpected exception when running thread tests: " + e);
             }
         }
@@ -45,9 +47,16 @@ public class TestRequestProcessing {
 
     private Void executeThreadTest() throws Exception {
         FakeReceiver receiver = new FakeReceiver();
+        List<FakeRequestHandler> handlers = new ArrayList<>(PACKETS_PER_THREAD);
+        // schedule all handlers
         for (int i = 0; i < PACKETS_PER_THREAD; i++) {
             receiver.receivePacket();
             FakeRequestHandler handler = receiver.getLastHandler();
+            if (handler == null) fail("Request unexpectedly dropped due to congestion");
+            handlers.add(handler);
+        }
+        // get results from all handlers
+        for (FakeRequestHandler handler : handlers) {
             synchronized (handler.getLock()) {
                 while (!handler.isDone()) handler.getLock().wait();
             }
