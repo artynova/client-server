@@ -2,7 +2,7 @@ package com.nova.cls.network.fake;
 
 import com.nova.cls.network.packets.Decryptor;
 import com.nova.cls.network.packets.Packet;
-import com.nova.cls.data.Processor;
+import com.nova.cls.data.FakeProcessor;
 import com.nova.cls.network.RequestTask;
 import com.nova.cls.network.packets.BadPacketException;
 import com.nova.cls.network.packets.Encryptor;
@@ -12,7 +12,7 @@ import java.net.InetAddress;
 public class FakeRequestTask implements RequestTask {
     // all 4 statics are thread-safe
     private static final Decryptor decryptor = new Decryptor();
-    private static final Processor processor = new Processor();
+    private static final FakeProcessor FAKE_PROCESSOR = new FakeProcessor();
     private static final Encryptor encryptor = new Encryptor();
     private static final FakeSender sender = new FakeSender();
 
@@ -33,7 +33,7 @@ public class FakeRequestTask implements RequestTask {
             try {
                 Packet request = decryptor.decrypt(incoming);
                 this.request = request;
-                Packet response = processor.process(request);
+                Packet response = FAKE_PROCESSOR.process(request);
                 byte[] outgoing = encryptor.encrypt(response);
                 sender.sendPacket(outgoing, source);
                 this.response = response;

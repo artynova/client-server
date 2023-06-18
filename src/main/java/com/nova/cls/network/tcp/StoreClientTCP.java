@@ -3,39 +3,84 @@ package com.nova.cls.network.tcp;
 import com.nova.cls.network.packets.*;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.TimeoutException;
 
 public class StoreClientTCP implements AutoCloseable {
+    public static final InetSocketAddress SERVER_SOCKET_ADDRESS = new InetSocketAddress(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
+    public static final int RETRIES = 5;
+    public static final int RETRY_INTERVAL = 2000;
     private final Encryptor encryptor = new Encryptor();
     private final Decryptor decryptor = new Decryptor();
-    private Socket socket = new Socket(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
+    private SocketChannel channel;
 
     public StoreClientTCP() throws IOException {
     }
 
-    public static void main(String[] args) throws IOException, BadPacketException {
+    public static void main(String[] args) throws TimeoutException, BadPacketException {
         try (StoreClientTCP clientTCP = new StoreClientTCP()) {
-            Packet request = new Packet((byte) 0, 0, new Message(0, 0, "Hello world"));
+            Packet request = new Packet((byte) 1, 1555, new Message(0, 0, "Hello world"));
+            System.out.println("Request: " + request);
             System.out.println("Response: " + clientTCP.send(request));
         } catch (IOException e) {
             System.err.println("Could not close TCP client");
             e.printStackTrace();
+        } catch (InterruptedException ignore) {
         }
     }
 
-    public Packet send(Packet request) throws IOException, BadPacketException {
-        byte[] requestBytes = encryptor.encrypt(request);
+    public Packet send(Packet request) throws IOException, InterruptedException, BadPacketException, TimeoutException {
+        int tries = 0;
+        while (true) { // terminates through timeout exception in catch
+            try {
+                tryConnect();
+                return trySend(request);
+            } catch (IOException | TimeoutException e) {
+                System.err.println("Could not get a reply from server on try " + (tries + 1));
+                if (++tries < RETRIES) {
+                    System.err.println("Entering a " + RETRY_INTERVAL + "ms timeout");
+                    Thread.sleep(RETRY_INTERVAL);
+                    System.err.println("Trying to retransmit...");
+                    channel = null; // reset channel to avoid issues like channel being connected here yet reset by server
+                } else throw new TimeoutException(e.getMessage());
+            }
+        }
+    }
 
-        socket.getOutputStream().write(requestBytes);
-        socket.shutdownOutput();
+    private Packet trySend(Packet request) throws IOException, TimeoutException, BadPacketException {
+        ByteBuffer buffer = ByteBuffer.wrap(encryptor.encrypt(request));
+        channel.write(buffer);
+        buffer.clear();
 
-        byte[] responseBytes = socket.getInputStream().readAllBytes();
+        // get variable length along with first headers
+        buffer = ByteBuffer.allocate(Packet.MESSAGE_LENGTH_OFFSET + 4);
+        channel.read(buffer);
+        int messageLength = buffer.getInt(Packet.MESSAGE_LENGTH_OFFSET);
 
-        return decryptor.decrypt(responseBytes);
+        // create and fill the full message array from already read bytes and the channel
+        byte[] response = new byte[messageLength + Packet.BYTES_WITHOUT_MESSAGE];
+        System.arraycopy(buffer.array(), 0, response, 0, Packet.MESSAGE_LENGTH_OFFSET + 4);
+        buffer = ByteBuffer.wrap(response);
+        buffer.position(Packet.MESSAGE_LENGTH_OFFSET + 4);
+        if (channel.read(buffer) == -1)
+            throw new TimeoutException("Connection timed out before response to " + request);
+
+        return decryptor.decrypt(buffer.array());
+    }
+
+    private void tryConnect() throws IOException {
+        if (!channelConnected()) channel = SocketChannel.open(SERVER_SOCKET_ADDRESS);
+        else System.err.println("Connected(?)");
+    }
+
+    private boolean channelConnected() {
+        return channel != null && channel.isConnected();
     }
 
     @Override
     public void close() throws IOException {
-        socket.close();
+        channel.close();
     }
 }

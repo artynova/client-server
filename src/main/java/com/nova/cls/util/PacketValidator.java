@@ -7,9 +7,8 @@ import java.nio.ByteBuffer;
 public class PacketValidator {
 
     public static void validateMinPacketRequirements(ByteBuffer buffer) {
-        buffer.getInt(5);
         if (buffer.limit() < Packet.MIN_BYTES)
-            throw new IllegalArgumentException("Packet shorter than min length " + Packet.MIN_BYTES);
+            throw new IllegalArgumentException("Packet with length " + buffer.limit() + " is shorter than min length " + Packet.MIN_BYTES);
         if (buffer.get(0) != Packet.MAGIC_BYTE)
             throw new IllegalArgumentException("Packet does not start with magic byte 13h");
     }

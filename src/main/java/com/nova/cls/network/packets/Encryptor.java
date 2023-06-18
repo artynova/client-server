@@ -23,7 +23,7 @@ public class Encryptor {
         // bPktId
         buffer.putLong(2, packet.getPacketId());
         // wLen
-        buffer.putInt(10, messageLength);
+        buffer.putInt(Packet.MESSAGE_LENGTH_OFFSET, messageLength);
         // wCrc16
         buffer.putShort(14, CRC16.crc16(buffer.array(), 0, 14));
 

@@ -2,20 +2,19 @@ package com.nova.cls.network.tcp;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 
 public class SenderTCP {
-    public void sendPacket(byte[] outgoing, Socket socket) {
+    public void sendPacket(byte[] outgoing, SocketChannel clientChannel) {
         try {
-            socket.getOutputStream().write(outgoing);
+            // cannot send more than one response at a time
+            synchronized (clientChannel) {
+                if (!clientChannel.isConnected()) return;
+                clientChannel.write(ByteBuffer.wrap(outgoing));
+            }
         } catch (IOException e) {
             System.err.println("Failed to send outgoing packet:");
-            e.printStackTrace();
-        }
-        try {
-            socket.shutdownOutput();
-        }
-        catch (IOException e) {
-            System.err.println("Failed to shut down socket output:");
             e.printStackTrace();
         }
     }

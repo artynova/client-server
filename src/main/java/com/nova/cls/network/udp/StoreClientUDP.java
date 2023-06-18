@@ -20,6 +20,7 @@ public class StoreClientUDP implements AutoCloseable {
     public static void main(String[] args) throws IOException, BadPacketException {
         try (StoreClientUDP clientUDP = new StoreClientUDP()) {
             Packet request = new Packet((byte) 0, 0, new Message(0, 0, "Hello world"));
+            System.out.println("Request: " + request);
             System.out.println("Response: " + clientUDP.send(request));
         }
     }

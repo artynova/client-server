@@ -9,7 +9,7 @@ public class StoreServerTCP extends BaseServer {
     public static final int PORT = 8080;
 
     public StoreServerTCP(BatchRequestHandler handler) throws IOException {
-        super(handler, new Thread(new ReceiverTCP(handler, Constants.SERVER_PORT)));
+        super(handler, new Thread(new ReceiverTCP(handler)));
     }
 
     public static void main(String[] args) throws IOException {

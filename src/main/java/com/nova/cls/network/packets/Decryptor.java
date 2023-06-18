@@ -16,7 +16,7 @@ public class Decryptor {
             PacketValidator.validateMinPacketRequirements(buffer);
 
             // wLen
-            int messageLength = buffer.getInt(10);
+            int messageLength = buffer.getInt(Packet.MESSAGE_LENGTH_OFFSET);
 
             PacketValidator.validatePacket(buffer, messageLength);
 
