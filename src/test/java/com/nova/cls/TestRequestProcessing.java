@@ -77,7 +77,7 @@ public class TestRequestProcessing {
         assertEquals(request.getPacketId(), response.getPacketId());
         Message requestMessage = request.getMessage();
         Message responseMessage = response.getMessage();
-        assertEquals(requestMessage.getCommandType(), responseMessage.getCommandType());
+        assertEquals(requestMessage.getMessageType(), responseMessage.getMessageType());
         assertEquals(requestMessage.getUserId(), responseMessage.getUserId());
         assertEquals("OK", responseMessage.getBody());
     }

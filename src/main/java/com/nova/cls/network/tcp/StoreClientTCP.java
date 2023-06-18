@@ -10,8 +10,9 @@ import java.util.concurrent.TimeoutException;
 
 public class StoreClientTCP implements AutoCloseable {
     public static final InetSocketAddress SERVER_SOCKET_ADDRESS = new InetSocketAddress(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
+    public static final int TIMEOUT_MILLIS = 10000;
     public static final int RETRIES = 5;
-    public static final int RETRY_INTERVAL = 2000;
+    public static final int RETRY_INTERVAL_MILLIS = 2000;
     private final Encryptor encryptor = new Encryptor();
     private final Decryptor decryptor = new Decryptor();
     private SocketChannel channel;
@@ -19,7 +20,7 @@ public class StoreClientTCP implements AutoCloseable {
     public StoreClientTCP() throws IOException {
     }
 
-    public static void main(String[] args) throws TimeoutException, BadPacketException {
+    public static void main(String[] args) throws TimeoutException, BadPacketException, InterruptedException {
         try (StoreClientTCP clientTCP = new StoreClientTCP()) {
             Packet request = new Packet((byte) 1, 1555, new Message(0, 0, "Hello world"));
             System.out.println("Request: " + request);
@@ -27,7 +28,6 @@ public class StoreClientTCP implements AutoCloseable {
         } catch (IOException e) {
             System.err.println("Could not close TCP client");
             e.printStackTrace();
-        } catch (InterruptedException ignore) {
         }
     }
 
@@ -40,8 +40,8 @@ public class StoreClientTCP implements AutoCloseable {
             } catch (IOException | TimeoutException e) {
                 System.err.println("Could not get a reply from server on try " + (tries + 1));
                 if (++tries < RETRIES) {
-                    System.err.println("Entering a " + RETRY_INTERVAL + "ms timeout");
-                    Thread.sleep(RETRY_INTERVAL);
+                    System.err.println("Entering a " + RETRY_INTERVAL_MILLIS + "ms timeout");
+                    Thread.sleep(RETRY_INTERVAL_MILLIS);
                     System.err.println("Trying to retransmit...");
                     channel = null; // reset channel to avoid issues like channel being connected here yet reset by server
                 } else throw new TimeoutException(e.getMessage());
@@ -56,7 +56,8 @@ public class StoreClientTCP implements AutoCloseable {
 
         // get variable length along with first headers
         buffer = ByteBuffer.allocate(Packet.MESSAGE_LENGTH_OFFSET + 4);
-        channel.read(buffer);
+        if (channel.socket().getInputStream().read(buffer.array()) == -1) // using socket to make use of soTimeout
+            throw new TimeoutException("Connection timed out before response to " + request);
         int messageLength = buffer.getInt(Packet.MESSAGE_LENGTH_OFFSET);
 
         // create and fill the full message array from already read bytes and the channel
@@ -64,14 +65,17 @@ public class StoreClientTCP implements AutoCloseable {
         System.arraycopy(buffer.array(), 0, response, 0, Packet.MESSAGE_LENGTH_OFFSET + 4);
         buffer = ByteBuffer.wrap(response);
         buffer.position(Packet.MESSAGE_LENGTH_OFFSET + 4);
-        if (channel.read(buffer) == -1)
+        if (channel.socket().getInputStream().read(buffer.array()) == -1)
             throw new TimeoutException("Connection timed out before response to " + request);
 
         return decryptor.decrypt(buffer.array());
     }
 
     private void tryConnect() throws IOException {
-        if (!channelConnected()) channel = SocketChannel.open(SERVER_SOCKET_ADDRESS);
+        if (!channelConnected()) {
+            channel = SocketChannel.open(SERVER_SOCKET_ADDRESS);
+            channel.socket().setSoTimeout(TIMEOUT_MILLIS);
+        }
         else System.err.println("Connected(?)");
     }
 
@@ -81,6 +85,6 @@ public class StoreClientTCP implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        channel.close();
+        if (channel != null) channel.close();
     }
 }

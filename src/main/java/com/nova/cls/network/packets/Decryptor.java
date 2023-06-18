@@ -21,18 +21,18 @@ public class Decryptor {
             PacketValidator.validatePacket(buffer, messageLength);
 
             // cType
-            int commandType = buffer.getInt(16);
+            int messageType = buffer.getInt(16);
             // bUserId
             int userId = buffer.getInt(20);
             // message
             String body = new String(DECIPHERER.decipher(bytes, 24, messageLength - Message.BYTES_WITHOUT_BODY), StandardCharsets.UTF_8);
 
             // bMsq
-            Message message = new Message(commandType, userId, body);
+            Message message = new Message(messageType, userId, body);
             // bSrc
             byte source = buffer.get(1);
             // bPktId
-            long packetId = buffer.getLong(2);
+            long packetId = buffer.getLong(Packet.PACKET_ID_OFFSET);
 
             return new Packet(source, packetId, message);
         } catch (Exception e) {

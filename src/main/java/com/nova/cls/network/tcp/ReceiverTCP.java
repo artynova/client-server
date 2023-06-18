@@ -8,6 +8,7 @@ import com.nova.cls.network.packets.Packet;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -67,18 +68,22 @@ public class ReceiverTCP implements Receiver, Runnable {
     }
 
     private void readRequests(ByteBuffer buffer, SelectionKey key) throws IOException {
-        SocketChannel clientChannel = (SocketChannel) key.channel();
-        int r = clientChannel.read(buffer);
-        if (r == -1) {
-            key.cancel();
-            clientChannel.close();
-            return;
-        }
+        try {
+            SocketChannel clientChannel = (SocketChannel) key.channel();
+            int r = clientChannel.read(buffer);
+            if (r == -1) {
+                key.cancel();
+                clientChannel.close();
+                return;
+            }
 
-        buffer.flip();
-        updateClientPartial(clientChannel, buffer);
-        processMessages(clientChannel);
-        buffer.clear();
+            buffer.flip();
+            updateClientPartial(clientChannel, buffer);
+            processMessages(clientChannel);
+            buffer.clear();
+        } catch (SocketException e) { // guard against connection resets
+            key.channel().close();
+        }
     }
 
     private void updateClientPartial(SocketChannel clientChannel, ByteBuffer buffer) {

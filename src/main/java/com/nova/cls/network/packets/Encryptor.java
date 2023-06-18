@@ -21,7 +21,7 @@ public class Encryptor {
         // bSrc
         buffer.put(1, packet.getSource());
         // bPktId
-        buffer.putLong(2, packet.getPacketId());
+        buffer.putLong(Packet.PACKET_ID_OFFSET, packet.getPacketId());
         // wLen
         buffer.putInt(Packet.MESSAGE_LENGTH_OFFSET, messageLength);
         // wCrc16
@@ -29,7 +29,7 @@ public class Encryptor {
 
         // bMsq
         // cType
-        buffer.putInt(16, packet.getMessage().getCommandType());
+        buffer.putInt(16, packet.getMessage().getMessageType());
         // bUserId
         buffer.putInt(20, packet.getMessage().getUserId());
         // message

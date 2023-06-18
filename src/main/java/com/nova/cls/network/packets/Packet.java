@@ -6,6 +6,7 @@ import java.util.Objects;
 // numbers are interpreted as unsigned
 public final class Packet {
     public static final byte MAGIC_BYTE = 0x13;
+    public static final int PACKET_ID_OFFSET = 2;
     public static final int MESSAGE_LENGTH_OFFSET = 10;
     public static final int BYTES_WITHOUT_MESSAGE = 18;
     public static final int MIN_BYTES = 42; // 26 total bytes for known-size fields, 16 is the minimal properly encrypted message body

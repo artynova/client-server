@@ -1,27 +1,38 @@
 package com.nova.cls.network.packets;
 
+import com.nova.cls.data.Command;
+import com.nova.cls.data.Response;
+
 import java.util.Objects;
 
 // numbers are interpreted as unsigned
 public final class Message {
     public static final int BYTES_WITHOUT_BODY = 8;
 
-    private final int commandType;
+    private final int messageType; // changed from command type to message type to reflect the fact that it is used by both client and server, with different type classification
     private final int userId;
     private final String body;
 
-    public Message(int commandType, int userId, String body) {
-        this.commandType = commandType;
+    public Message(int messageType, int userId, String body) {
+        this.messageType = messageType;
         this.userId = userId;
         this.body = body;
     }
 
-    public int getCommandType() {
-        return commandType;
+    public Message(Command command, int userId, String body) {
+        this(command.ordinal(), userId, body);
     }
 
-    public long getCommandTypeUnsigned() {
-        return Integer.toUnsignedLong(commandType);
+    public Message(Response response, int userId, String body) {
+        this(response.ordinal(), userId, body);
+    }
+
+    public int getMessageType() {
+        return messageType;
+    }
+
+    public long getMessageTypeUnsigned() {
+        return Integer.toUnsignedLong(messageType);
     }
 
     public int getUserId() {
@@ -41,18 +52,18 @@ public final class Message {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return getCommandType() == message.getCommandType() && getUserId() == message.getUserId() && getBody().equals(message.getBody());
+        return getMessageType() == message.getMessageType() && getUserId() == message.getUserId() && getBody().equals(message.getBody());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCommandType(), getUserId(), getBody());
+        return Objects.hash(getMessageType(), getUserId(), getBody());
     }
 
     @Override
     public String toString() {
         return "Message { " +
-                "commandType = " + getCommandTypeUnsigned() +
+                "commandType = " + getMessageTypeUnsigned() +
                 ", userId = " + getUserIdUnsigned() +
                 ", body = '" + getBody() + "' }";
     }

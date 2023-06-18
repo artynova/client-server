@@ -1,7 +1,6 @@
 package com.nova.cls.network.tcp;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
@@ -10,6 +9,11 @@ public class SenderTCP {
         try {
             // cannot send more than one response at a time
             synchronized (clientChannel) {
+                try {
+                    clientChannel.wait(100000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 if (!clientChannel.isConnected()) return;
                 clientChannel.write(ByteBuffer.wrap(outgoing));
             }

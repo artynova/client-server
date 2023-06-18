@@ -16,7 +16,7 @@ public class TestPackets {
     @Test
     public void testUnsignedInterpretation() {
         Message message = new Message(-1, -1, "Hello, World!");
-        assertEquals(MAX_UNSIGNED_INT, message.getCommandTypeUnsigned());
+        assertEquals(MAX_UNSIGNED_INT, message.getMessageTypeUnsigned());
         assertEquals(MAX_UNSIGNED_INT, message.getUserIdUnsigned());
 
         Packet packet = new Packet((byte) -1, -1, message);
