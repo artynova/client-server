@@ -1,5 +1,6 @@
 package com.nova.cls;
 
+import com.nova.cls.data.Response;
 import com.nova.cls.network.BatchRequestHandler;
 import com.nova.cls.network.fake.FakeReceiver;
 import com.nova.cls.network.fake.FakeRequestTask;
@@ -25,7 +26,7 @@ public class TestRequestProcessing {
     private static final int HANDLER_BATCH_SIZE = 50;
     private static final int HANDLER_INTERVAL_MILLIS = 50;
 
-    private static final boolean VERBOSE = true;
+    private static final boolean VERBOSE = false;
 
 
     @Test
@@ -77,7 +78,7 @@ public class TestRequestProcessing {
         assertEquals(request.getPacketId(), response.getPacketId());
         Message requestMessage = request.getMessage();
         Message responseMessage = response.getMessage();
-        assertEquals(requestMessage.getMessageType(), responseMessage.getMessageType());
+        assertEquals(Response.OK.ordinal(), responseMessage.getMessageType());
         assertEquals(requestMessage.getUserId(), responseMessage.getUserId());
         assertEquals("OK", responseMessage.getBody());
     }
