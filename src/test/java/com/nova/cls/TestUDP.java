@@ -22,8 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class TestUDP {
-    public static final int TESTING_THREADS = 8;
-    private static final int PACKETS_PER_THREAD = 10;
+    public static final int TESTING_THREADS = 16;
+    private static final int PACKETS_PER_THREAD = 100;
     private static StoreServerUDP server;
     private static BatchRequestHandler handler;
 
