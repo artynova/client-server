@@ -8,6 +8,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Client sends and receives information over the network, packets themselves are expected to be created elsewhere.
+ */
 public class StoreClientTCP implements AutoCloseable {
     public static final InetSocketAddress SERVER_SOCKET_ADDRESS = new InetSocketAddress(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
     public static final int TIMEOUT_MILLIS = 10000;
@@ -65,7 +68,7 @@ public class StoreClientTCP implements AutoCloseable {
         System.arraycopy(buffer.array(), 0, response, 0, Packet.MESSAGE_LENGTH_OFFSET + 4);
         buffer = ByteBuffer.wrap(response);
         buffer.position(Packet.MESSAGE_LENGTH_OFFSET + 4);
-        if (channel.socket().getInputStream().read(buffer.array()) == -1)
+        if (channel.socket().getInputStream().read(response, buffer.position(), buffer.remaining()) == -1)
             throw new TimeoutException("Connection timed out before response to " + request);
 
         return decryptor.decrypt(buffer.array());
@@ -76,7 +79,6 @@ public class StoreClientTCP implements AutoCloseable {
             channel = SocketChannel.open(SERVER_SOCKET_ADDRESS);
             channel.socket().setSoTimeout(TIMEOUT_MILLIS);
         }
-        else System.err.println("Connected(?)");
     }
 
     private boolean channelConnected() {

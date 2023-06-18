@@ -22,9 +22,6 @@ public class RequestTaskUDP implements RequestTask {
     public RequestTaskUDP(DatagramPacket packet, UDPInfo info) {
         this.packet = packet;
         this.info = info;
-        System.out.println(info.getNextPacketId());
-        System.out.println(info.getRetransmissionRequests());
-        System.out.println(info.getSessionExpireTime());
     }
 
     @Override
@@ -49,7 +46,6 @@ public class RequestTaskUDP implements RequestTask {
     private boolean tryRequestRetransmission(Packet request) {
         synchronized (info) {
             if (info.getNextPacketId() == request.getPacketId() || info.getRetransmissionRequests() >= MAX_RETRANSMISSION_REQUESTS || System.currentTimeMillis() > info.getSessionExpireTime()) {
-                System.out.println("ales");
                 // consider the packet correct and reset all data
                 info.setNextPacketId(request.getPacketId() + 1);
                 info.setSessionExpireTime(System.currentTimeMillis() + SESSION_DURATION_MILLIS);
@@ -58,7 +54,6 @@ public class RequestTaskUDP implements RequestTask {
             }
             packet.setData(makeRetransmissionRequest(info.getNextPacketId(), request));
             SENDER.sendPacket(packet);
-            System.out.println("ales sent");
             return true;
         }
     }

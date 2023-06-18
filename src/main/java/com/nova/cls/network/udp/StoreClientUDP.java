@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Client sends and receives information over the network, packets themselves are expected to be created elsewhere.
+ */
 public class StoreClientUDP implements AutoCloseable {
     public static final int TIMEOUT_MILLIS = 10000;
     public static final int RETRIES = 5;

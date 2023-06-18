@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 // common pool where incoming requests are accumulated and regularly serviced in batches (also employing multiple threads when there are a lot of requests)
-public class BatchRequestHandler {
+public class BatchRequestHandler implements AutoCloseable {
     public static final int DEFAULT_THREADS = 4;
     public static final int DEFAULT_MAX_BATCH_SIZE = 50;
     public static final int DEFAULT_HANDLE_INTERVAL_MILLIS = 100;
@@ -39,7 +39,8 @@ public class BatchRequestHandler {
         this(DEFAULT_THREADS, DEFAULT_MAX_BATCH_SIZE, DEFAULT_HANDLE_INTERVAL_MILLIS);
     }
 
-    public void shutdown() {
+    @Override
+    public void close() {
         ThreadUtils.shutdown(pool);
         timer.cancel();
         shutdown = true;

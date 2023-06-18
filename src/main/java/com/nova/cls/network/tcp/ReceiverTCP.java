@@ -144,17 +144,4 @@ public class ReceiverTCP implements Receiver, Runnable {
             receivePacket();
         }
     }
-
-    //    private final ServerSocket socket;
-//
-//    public ReceiverTCP(BatchRequestHandler handler, int port) throws IOException {
-//        super(handler);
-//        this.socket = new ServerSocket(port);
-//    }
-//
-//    @Override
-//    protected RequestTaskTCP receiveRequestTask() throws IOException {
-//        Socket clientSocket = socket.accept();
-//        return new RequestTaskTCP(clientSocket);
-//    }
 }

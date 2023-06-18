@@ -7,7 +7,7 @@ public class FakeProcessor {
     // made to return the response packet instead of passing it along, to centralize chaining stages of packet processing within the handler
     public Packet process(Packet request) {
         Message requestMessage = request.getMessage();
-        Message responseMessage = new Message(requestMessage.getMessageType(), requestMessage.getUserId(), "OK");
+        Message responseMessage = new Message(Response.OK, requestMessage.getUserId(), "OK");
         return new Packet(request.getSource(), request.getPacketId(), responseMessage);
     }
 }

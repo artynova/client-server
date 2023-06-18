@@ -7,7 +7,7 @@ import java.net.SocketException;
 
 public class StoreServerUDP extends BaseServer {
     public StoreServerUDP(BatchRequestHandler handler) throws SocketException {
-        super(handler, new Thread(new ReceiverUDP(handler)));
+        super(new Thread(new ReceiverUDP(handler)));
     }
 
     public static void main(String[] args) throws SocketException {

@@ -10,6 +10,6 @@ public class FakeServer {
         BatchRequestHandler handler = new BatchRequestHandler();
         Receiver receiver = new FakeReceiver(handler);
         for (int i = 0; i < RECEIVE_PACKETS; i++) receiver.receivePacket();
-        handler.shutdown();
+        handler.close();
     }
 }

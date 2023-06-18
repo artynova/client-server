@@ -29,7 +29,7 @@ public class TestRequestProcessing {
 
 
     @Test
-    public void processing() {
+    public void testProcessing() {
         FakeReceiver.setVerbose(VERBOSE);
         FakeSender.setVerbose(VERBOSE);
 
@@ -43,12 +43,12 @@ public class TestRequestProcessing {
                 results.get(i).get();
             } catch (Exception e) {
                 e.printStackTrace();
-                handler.shutdown();
+                handler.close();
                 fail("Unexpected exception when running thread tests: " + e);
             }
         }
 
-        handler.shutdown();
+        handler.close();
     }
 
     private Void executeThreadTest(BatchRequestHandler handler) throws Exception {
