@@ -13,17 +13,17 @@ public final class Message {
     private final int userId;
     private final String body;
 
-    public Message(int messageType, int userId, String body) {
+    public Message(int messageType, int userId, Object body) {
         this.messageType = messageType;
         this.userId = userId;
-        this.body = body;
+        this.body = body.toString();
     }
 
-    public Message(Command command, int userId, String body) {
+    public Message(Command command, int userId, Object body) {
         this(command.ordinal(), userId, body);
     }
 
-    public Message(Response response, int userId, String body) {
+    public Message(Response response, int userId, Object body) {
         this(response.ordinal(), userId, body);
     }
 

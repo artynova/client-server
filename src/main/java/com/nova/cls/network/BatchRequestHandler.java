@@ -20,7 +20,7 @@ public class BatchRequestHandler implements AutoCloseable {
     private final ArrayBlockingQueue<RequestTask> queue;
     private final int maxBatchSize;
     private final Timer timer;
-    private boolean shutdown = false;
+    private boolean closed = false;
 
     public BatchRequestHandler(int threads, int maxBatchSize, int handleIntervalMillis) {
         if (threads < 1) throw new IllegalArgumentException("Threads < 1: " + threads);
@@ -41,17 +41,18 @@ public class BatchRequestHandler implements AutoCloseable {
 
     @Override
     public void close() {
+        if (isClosed()) return;
         ThreadUtils.shutdown(pool);
         timer.cancel();
-        shutdown = true;
+        closed = true;
     }
 
-    public boolean isShutdown() {
-        return shutdown;
+    public boolean isClosed() {
+        return closed;
     }
 
     public boolean offer(RequestTask handler) {
-        if (shutdown)
+        if (closed)
             throw new UnsupportedOperationException("Trying to offer a task to a shutdown batch request handler");
         if (!queue.offer(handler)) return false;
         if (queue.size() >= maxBatchSize) handleBatch();

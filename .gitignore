@@ -33,3 +33,6 @@ replay_pid*
 # build
 /target
 src/main/resources/secret.txt
+
+# database
+data.db

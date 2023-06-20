@@ -1,6 +1,7 @@
 package com.nova.cls;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nova.cls.data.models.Group;
 import com.nova.cls.util.CRC16;
 import com.nova.cls.network.packets.*;
 import org.junit.Assert;
@@ -14,7 +15,7 @@ public class TestPacketTransformations {
     private final Decryptor decryptor = new Decryptor();
     private final Encryptor encryptor = new Encryptor();
     private final ObjectMapper mapper = new ObjectMapper();
-    private final Group meat = new Group("Meat", "Bad for the environment, hard to give up");
+    private final Group meat = new Group(1, "Meat", "Bad for the environment, hard to give up");
     private Packet meatPacket;
 
     @Before

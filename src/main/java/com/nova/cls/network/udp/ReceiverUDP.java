@@ -3,6 +3,7 @@ package com.nova.cls.network.udp;
 import com.nova.cls.network.BatchRequestHandler;
 import com.nova.cls.network.Receiver;
 import com.nova.cls.network.RequestTask;
+import com.nova.cls.network.ServerFailureException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -16,17 +17,27 @@ public class ReceiverUDP implements Receiver, Runnable {
     private final BatchRequestHandler handler;
     private final DatagramSocket socket;
     private final Map<InetSocketAddress, UDPInfo> connectionInfo = new HashMap<>();
+    private boolean closed = false;
 
-    public ReceiverUDP(BatchRequestHandler handler) throws SocketException {
+    public ReceiverUDP(BatchRequestHandler handler) {
         this.handler = handler;
-        this.socket = new DatagramSocket(Constants.SERVER_PORT);
+        try {
+            this.socket = new DatagramSocket(Constants.SERVER_PORT);
+        } catch (SocketException e) {
+            throw new ServerFailureException(e);
+        }
     }
 
     @Override
     public void receivePacket() {
         RequestTask task;
         try {
-            task = receiveRequestTask();
+            try {
+                task = receiveRequestTask();
+            } catch (SocketException e) {
+                if (Thread.currentThread().isInterrupted()) return; // if the thread is interrupted, the listening socket expectedly throws a SocketException
+                throw e; // throw exception back for standard logging
+            }
         } catch (Exception e) {
             System.err.println("Packet dropped due to an exception:");
             e.printStackTrace();
@@ -52,5 +63,16 @@ public class ReceiverUDP implements Receiver, Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             receivePacket();
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (isClosed()) return;
+        socket.close();
+        closed = true;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 }

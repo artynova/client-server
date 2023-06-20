@@ -1,18 +1,16 @@
 package com.nova.cls.network.tcp;
 
 import com.nova.cls.data.FakeProcessor;
+import com.nova.cls.data.Processor;
 import com.nova.cls.network.RequestTask;
-import com.nova.cls.network.packets.BadPacketException;
-import com.nova.cls.network.packets.Decryptor;
-import com.nova.cls.network.packets.Encryptor;
-import com.nova.cls.network.packets.Packet;
+import com.nova.cls.network.packets.*;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 public class RequestTaskTCP implements RequestTask {
     private static final Decryptor DECRYPTOR = new Decryptor();
-    private static final FakeProcessor PROCESSOR = new FakeProcessor();
+    private static final Processor PROCESSOR = new Processor();
     private static final Encryptor ENCRYPTOR = new Encryptor();
     private static final SenderTCP SENDER = new SenderTCP();
 
@@ -28,7 +26,8 @@ public class RequestTaskTCP implements RequestTask {
     public void handle() {
         try {
             Packet request = DECRYPTOR.decrypt(incoming);
-            Packet response = PROCESSOR.process(request);
+            Message responseMessage = PROCESSOR.process(request.getMessage());
+            Packet response = new Packet(request.getSource(), request.getPacketId(), responseMessage);
             byte[] outgoing = ENCRYPTOR.encrypt(response);
             SENDER.sendPacket(outgoing, clientChannel);
         } catch (BadPacketException e) {

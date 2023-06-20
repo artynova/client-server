@@ -4,10 +4,7 @@ import com.nova.cls.network.packets.Message;
 import com.nova.cls.network.packets.Packet;
 
 public class FakeProcessor {
-    // made to return the response packet instead of passing it along, to centralize chaining stages of packet processing within the handler
-    public Packet process(Packet request) {
-        Message requestMessage = request.getMessage();
-        Message responseMessage = new Message(Response.OK, requestMessage.getUserId(), "OK");
-        return new Packet(request.getSource(), request.getPacketId(), responseMessage);
+    public Message process(Message request) {
+        return new Message(Response.OK, request.getUserId(), "OK");
     }
 }

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class StoreServerTCP extends BaseServer {
     public StoreServerTCP(BatchRequestHandler handler) {
-        super(new Thread(new ReceiverTCP(handler)));
+        super(new ReceiverTCP(handler));
     }
 
     public static void main(String[] args) throws IOException {

@@ -1,6 +1,8 @@
 package com.nova.cls.network.udp;
 
 import com.nova.cls.data.Response;
+import com.nova.cls.network.Client;
+import com.nova.cls.network.ClientFailureException;
 import com.nova.cls.network.packets.*;
 
 import java.io.IOException;
@@ -16,18 +18,24 @@ import java.util.concurrent.TimeoutException;
 /**
  * Client sends and receives information over the network, packets themselves are expected to be created elsewhere.
  */
-public class StoreClientUDP implements AutoCloseable {
+public class StoreClientUDP implements Client {
     public static final int TIMEOUT_MILLIS = 10000;
     public static final int RETRIES = 5;
     public static final int RETRY_INTERVAL_MILLIS = 2000;
     private final Encryptor encryptor = new Encryptor();
     private final Decryptor decryptor = new Decryptor();
-    private final DatagramSocket socket = new DatagramSocket();
+    private final DatagramSocket socket;
     private final DatagramPacket packet = new DatagramPacket(new byte[Constants.MAX_PACKET_SIZE], Constants.MAX_PACKET_SIZE, Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
     private final Map<Long, Packet> idsToPackets = new HashMap<>(); // map to keep track of sent packets for retransmission
+    private boolean closed = false;
 
-    public StoreClientUDP() throws SocketException {
-        socket.setSoTimeout(TIMEOUT_MILLIS);
+    public StoreClientUDP() {
+        try {
+            this.socket = new DatagramSocket();
+            socket.setSoTimeout(TIMEOUT_MILLIS);
+        } catch (SocketException e) {
+            throw new ClientFailureException(e);
+        }
     }
 
     public static void main(String[] args) throws IOException, BadPacketException, InterruptedException {
@@ -86,6 +94,12 @@ public class StoreClientUDP implements AutoCloseable {
 
     @Override
     public void close() {
+        if (isClosed()) return;
         socket.close();
+        closed = true;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 }

@@ -26,6 +26,7 @@ public class ReceiverTCP implements Receiver, Runnable {
     private final ServerSocketChannel serverChannel;
     private final ByteBuffer buffer;
     private final BatchRequestHandler handler;
+    private boolean closed = false;
 
 
     public ReceiverTCP(BatchRequestHandler handler) {
@@ -143,5 +144,20 @@ public class ReceiverTCP implements Receiver, Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             receivePacket();
         }
+    }
+
+    @Override
+    public void close() throws ServerFailureException {
+        if (isClosed()) return;
+        try {
+            selector.close();
+        } catch (IOException e) {
+            throw new ServerFailureException("Error while closing selector:");
+        }
+         closed = true;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 }

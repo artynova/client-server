@@ -62,4 +62,13 @@ public class FakeReceiver implements Receiver {
         return lastTask;
     }
 
+    @Override
+    public void run() {
+
+    }
+
+    @Override
+    public void close() throws Exception {
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.nova.cls.network.tcp;
 
+import com.nova.cls.network.Client;
 import com.nova.cls.network.packets.*;
 
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Client sends and receives information over the network, packets themselves are expected to be created elsewhere.
  */
-public class StoreClientTCP implements AutoCloseable {
+public class StoreClientTCP implements Client {
     public static final InetSocketAddress SERVER_SOCKET_ADDRESS = new InetSocketAddress(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
     public static final int TIMEOUT_MILLIS = 10000;
     public static final int RETRIES = 5;
@@ -19,9 +20,7 @@ public class StoreClientTCP implements AutoCloseable {
     private final Encryptor encryptor = new Encryptor();
     private final Decryptor decryptor = new Decryptor();
     private SocketChannel channel;
-
-    public StoreClientTCP() throws IOException {
-    }
+    private boolean closed = false;
 
     public static void main(String[] args) throws TimeoutException, BadPacketException, InterruptedException {
         try (StoreClientTCP clientTCP = new StoreClientTCP()) {
@@ -46,6 +45,7 @@ public class StoreClientTCP implements AutoCloseable {
                     System.err.println("Entering a " + RETRY_INTERVAL_MILLIS + "ms timeout");
                     Thread.sleep(RETRY_INTERVAL_MILLIS);
                     System.err.println("Trying to retransmit...");
+                    if (channel != null) channel.close();
                     channel = null; // reset channel to avoid issues like channel being connected here yet reset by server
                 } else throw new TimeoutException(e.getMessage());
             }
@@ -87,6 +87,12 @@ public class StoreClientTCP implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
+        if (isClosed()) return;
         if (channel != null) channel.close();
+        closed = true;
+    }
+
+    public boolean isClosed() {
+        return closed;
     }
 }

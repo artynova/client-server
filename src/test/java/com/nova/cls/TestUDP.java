@@ -1,73 +1,32 @@
 package com.nova.cls;
 
-import com.nova.cls.data.Response;
 import com.nova.cls.network.BatchRequestHandler;
-import com.nova.cls.network.fake.FakeRequestTask;
-import com.nova.cls.network.packets.Message;
-import com.nova.cls.network.packets.Packet;
+import com.nova.cls.network.Client;
+import com.nova.cls.network.Server;
 import com.nova.cls.network.udp.StoreClientUDP;
 import com.nova.cls.network.udp.StoreServerUDP;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-public class TestUDP {
+public class TestUDP extends TestProtocol {
     public static final int TESTING_THREADS = 16;
     private static final int PACKETS_PER_THREAD = 100;
-    private static StoreServerUDP server;
-    private static BatchRequestHandler handler;
 
-    @BeforeClass
-    public static void setUpClass() throws SocketException {
-        handler = new BatchRequestHandler();
-        server = new StoreServerUDP(handler);
-        server.start();
+    @Override
+    public int getTestingThreads() {
+        return TESTING_THREADS;
     }
 
-    @AfterClass
-    public static void tearDownClass() {
-        server.close();
-        handler.close();
+    @Override
+    public int getPacketsPerThread() {
+        return PACKETS_PER_THREAD;
     }
 
-    @Test
-    public void testUdp() {
-        ExecutorService pool = Executors.newFixedThreadPool(TESTING_THREADS);
-        List<Future<Void>> results = new ArrayList<>(TESTING_THREADS);
-        for (int i = 0; i < TESTING_THREADS; i++)
-            results.add(pool.submit(() -> executeThreadTest(handler)));
-        for (int i = 0; i < TESTING_THREADS; i++) {
-            try {
-                results.get(i).get();
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail("Unexpected exception when running thread tests: " + e);
-            }
-        }
+    @Override
+    public Server makeServer(BatchRequestHandler handler) {
+        return new StoreServerUDP(handler);
     }
 
-    private Void executeThreadTest(BatchRequestHandler handler) throws Exception {
-        StoreClientUDP client = new StoreClientUDP();
-        List<FakeRequestTask> tasks = new ArrayList<>(PACKETS_PER_THREAD);
-        for (int i = 0; i < PACKETS_PER_THREAD; i++) {
-            Packet request = new Packet((byte) 0, i, new Message(1, 155, "Hello world"));
-            Packet response = client.send(request);
-            assertEquals(request.getSource(), response.getSource());
-            assertEquals(request.getPacketId(), response.getPacketId());
-            assertEquals(request.getMessage().getUserId(), response.getMessage().getUserId());
-            assertEquals(Response.OK.ordinal(), response.getMessage().getMessageType());
-            assertEquals("OK", response.getMessage().getBody());
-        }
-        return null;
+    @Override
+    public Client makeClient() {
+        return new StoreClientUDP();
     }
 }
