@@ -1,7 +1,11 @@
 package com.nova.cls.network.tcp;
 
 import com.nova.cls.network.Client;
-import com.nova.cls.network.packets.*;
+import com.nova.cls.network.packets.BadPacketException;
+import com.nova.cls.network.packets.Decryptor;
+import com.nova.cls.network.packets.Encryptor;
+import com.nova.cls.network.packets.Message;
+import com.nova.cls.network.packets.Packet;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -13,7 +17,8 @@ import java.util.concurrent.TimeoutException;
  * Client sends and receives information over the network, packets themselves are expected to be created elsewhere.
  */
 public class StoreClientTCP implements Client {
-    public static final InetSocketAddress SERVER_SOCKET_ADDRESS = new InetSocketAddress(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
+    public static final InetSocketAddress SERVER_SOCKET_ADDRESS =
+        new InetSocketAddress(Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
     public static final int TIMEOUT_MILLIS = 10000;
     public static final int RETRIES = 5;
     public static final int RETRY_INTERVAL_MILLIS = 2000;
@@ -45,9 +50,14 @@ public class StoreClientTCP implements Client {
                     System.err.println("Entering a " + RETRY_INTERVAL_MILLIS + "ms timeout");
                     Thread.sleep(RETRY_INTERVAL_MILLIS);
                     System.err.println("Trying to retransmit...");
-                    if (channel != null) channel.close();
-                    channel = null; // reset channel to avoid issues like channel being connected here yet reset by server
-                } else throw new TimeoutException(e.getMessage());
+                    if (channel != null) {
+                        channel.close();
+                    }
+                    channel =
+                        null; // reset channel to avoid issues like channel being connected here yet reset by server
+                } else {
+                    throw new TimeoutException(e.getMessage());
+                }
             }
         }
     }
@@ -60,7 +70,9 @@ public class StoreClientTCP implements Client {
         // get variable length along with first headers
         buffer = ByteBuffer.allocate(Packet.MESSAGE_LENGTH_OFFSET + 4);
         if (channel.socket().getInputStream().read(buffer.array()) == -1) // using socket to make use of soTimeout
+        {
             throw new TimeoutException("Connection timed out before response to " + request);
+        }
         int messageLength = buffer.getInt(Packet.MESSAGE_LENGTH_OFFSET);
 
         // create and fill the full message array from already read bytes and the channel
@@ -68,8 +80,9 @@ public class StoreClientTCP implements Client {
         System.arraycopy(buffer.array(), 0, response, 0, Packet.MESSAGE_LENGTH_OFFSET + 4);
         buffer = ByteBuffer.wrap(response);
         buffer.position(Packet.MESSAGE_LENGTH_OFFSET + 4);
-        if (channel.socket().getInputStream().read(response, buffer.position(), buffer.remaining()) == -1)
+        if (channel.socket().getInputStream().read(response, buffer.position(), buffer.remaining()) == -1) {
             throw new TimeoutException("Connection timed out before response to " + request);
+        }
 
         return decryptor.decrypt(buffer.array());
     }
@@ -87,8 +100,12 @@ public class StoreClientTCP implements Client {
 
     @Override
     public void close() throws IOException {
-        if (isClosed()) return;
-        if (channel != null) channel.close();
+        if (isClosed()) {
+            return;
+        }
+        if (channel != null) {
+            channel.close();
+        }
         closed = true;
     }
 

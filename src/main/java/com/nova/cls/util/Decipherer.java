@@ -5,7 +5,8 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 
 public class Decipherer {
-    private static final ThreadLocal<Cipher> cipher = ThreadLocal.withInitial(() -> CipherUtils.createCipher(Cipher.DECRYPT_MODE)); // making Decipherer thread-safe
+    private static final ThreadLocal<Cipher> cipher =
+        ThreadLocal.withInitial(() -> CipherUtils.createCipher(Cipher.DECRYPT_MODE)); // making Decipherer thread-safe
 
     public byte[] decipher(byte[] bytes, int offset, int length) throws IllegalBlockSizeException, BadPaddingException {
         try {

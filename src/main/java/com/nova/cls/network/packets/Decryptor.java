@@ -25,7 +25,8 @@ public class Decryptor {
             // bUserId
             int userId = buffer.getInt(20);
             // message
-            String body = new String(DECIPHERER.decipher(bytes, 24, messageLength - Message.BYTES_WITHOUT_BODY), StandardCharsets.UTF_8);
+            String body = new String(DECIPHERER.decipher(bytes, 24, messageLength - Message.BYTES_WITHOUT_BODY),
+                StandardCharsets.UTF_8);
 
             // bMsq
             Message message = new Message(messageType, userId, body);
@@ -36,7 +37,8 @@ public class Decryptor {
 
             return new Packet(source, packetId, message);
         } catch (Exception e) {
-            throw new BadPacketException(e.getMessage(), e); // All exceptions are wrapped in semantic bad packet exceptions
+            throw new BadPacketException(e.getMessage(),
+                e); // All exceptions are wrapped in semantic bad packet exceptions
         }
     }
 }

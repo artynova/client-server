@@ -3,7 +3,11 @@ package com.nova.cls.network.udp;
 import com.nova.cls.data.Response;
 import com.nova.cls.network.Client;
 import com.nova.cls.network.ClientFailureException;
-import com.nova.cls.network.packets.*;
+import com.nova.cls.network.packets.BadPacketException;
+import com.nova.cls.network.packets.Decryptor;
+import com.nova.cls.network.packets.Encryptor;
+import com.nova.cls.network.packets.Message;
+import com.nova.cls.network.packets.Packet;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -25,8 +29,11 @@ public class StoreClientUDP implements Client {
     private final Encryptor encryptor = new Encryptor();
     private final Decryptor decryptor = new Decryptor();
     private final DatagramSocket socket;
-    private final DatagramPacket packet = new DatagramPacket(new byte[Constants.MAX_PACKET_SIZE], Constants.MAX_PACKET_SIZE, Constants.SERVER_ADDRESS, Constants.SERVER_PORT);
-    private final Map<Long, Packet> idsToPackets = new HashMap<>(); // map to keep track of sent packets for retransmission
+    private final DatagramPacket packet =
+        new DatagramPacket(new byte[Constants.MAX_PACKET_SIZE], Constants.MAX_PACKET_SIZE, Constants.SERVER_ADDRESS,
+            Constants.SERVER_PORT);
+    private final Map<Long, Packet> idsToPackets = new HashMap<>();
+    // map to keep track of sent packets for retransmission
     private boolean closed = false;
 
     public StoreClientUDP() {
@@ -59,12 +66,14 @@ public class StoreClientUDP implements Client {
             try {
                 Packet response = trySend(request);
                 if (Response.get(response.getMessage().getMessageType()) != Response.RETRANSMIT_REQUEST) {
-                    idsToPackets.remove(request.getPacketId()); // if we got a response, this means the server received the packet, and it will not need to be retransmitted
+                    idsToPackets.remove(
+                        request.getPacketId()); // if we got a response, this means the server received the packet, and it will not need to be retransmitted
                     return response;
                 }
                 Packet retransmitPacket = idsToPackets.get(Long.parseLong(request.getMessage().getBody()));
-                if (retransmitPacket == null)
+                if (retransmitPacket == null) {
                     continue; // if packet is unavailable, keep sending until the server gives up
+                }
                 send(retransmitPacket);
             } catch (SocketTimeoutException e) {
                 System.err.println("Could not get a reply from server on try " + (tries + 1));
@@ -72,7 +81,9 @@ public class StoreClientUDP implements Client {
                     System.err.println("Entering a " + RETRY_INTERVAL_MILLIS + "ms timeout");
                     Thread.sleep(RETRY_INTERVAL_MILLIS);
                     System.err.println("Trying to retransmit...");
-                } else throw new TimeoutException(e.getMessage());
+                } else {
+                    throw new TimeoutException(e.getMessage());
+                }
             }
         }
     }
@@ -88,13 +99,16 @@ public class StoreClientUDP implements Client {
         packet.setData(new byte[Constants.MAX_PACKET_SIZE]);
         socket.receive(packet);
 
-        byte[] responseBytes = Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getOffset() + packet.getLength());
+        byte[] responseBytes =
+            Arrays.copyOfRange(packet.getData(), packet.getOffset(), packet.getOffset() + packet.getLength());
         return decryptor.decrypt(responseBytes);
     }
 
     @Override
     public void close() {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         socket.close();
         closed = true;
     }

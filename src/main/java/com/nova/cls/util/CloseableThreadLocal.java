@@ -1,6 +1,5 @@
 package com.nova.cls.util;
 
-import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
@@ -30,7 +29,9 @@ public class CloseableThreadLocal<T extends AutoCloseable> implements AutoClosea
 
     @Override
     public synchronized void close() throws Exception {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         for (T t : queue) {
             t.close(); // try to free all resources in the queue (i.e. all instances of the ThreadLocal
         }

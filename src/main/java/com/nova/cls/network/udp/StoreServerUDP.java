@@ -2,7 +2,6 @@ package com.nova.cls.network.udp;
 
 import com.nova.cls.network.BaseServer;
 import com.nova.cls.network.BatchRequestHandler;
-import com.nova.cls.network.ServerFailureException;
 
 import java.net.SocketException;
 

@@ -7,9 +7,8 @@ import java.util.List;
  * Intermediate class between a JSON message body and a set of Criteria that the message specifies for a list of goods.
  * A property that is equal to "null" means that a criterion is not used.
  */
-public record GoodsCriteriaAggregate(Long groupId, String manufacturer,
-                                     Long minPrice, Long maxPrice,
-                                     Long minQuantity, Long maxQuantity) {
+public record GoodsCriteriaAggregate(Long groupId, String manufacturer, Long minPrice, Long maxPrice, Long minQuantity,
+                                     Long maxQuantity) {
     public GoodsCriterion[] criteria() {
         List<GoodsCriterion> list = new ArrayList<>(6);
         if (groupId() != null) {

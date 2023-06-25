@@ -54,8 +54,11 @@ public class FakeReceiver implements Receiver {
             System.err.println("Packet dropped due to congestion");
             lastTask = null;
         }
-        if (verbose)
-            System.out.println("Time: " + LocalDateTime.now().toLocalTime() + "\nReceiving " + request + "\nFrom " + STUB_ADDRESS + "\n");
+        if (verbose) {
+            System.out.println(
+                "Time: " + LocalDateTime.now().toLocalTime() + "\nReceiving " + request + "\nFrom " + STUB_ADDRESS
+                    + "\n");
+        }
     }
 
     public FakeRequestTask getLastTask() {

@@ -14,7 +14,12 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.nio.channels.SelectionKey.OP_READ;
 
@@ -52,8 +57,12 @@ public class ReceiverTCP implements Receiver, Runnable {
                 SelectionKey key = keys.next();
 
                 updateKeyRelevance(key);
-                if (key.isValid() && key.isAcceptable()) register(selector, serverChannel);
-                if (key.isValid() && key.isReadable()) readRequests(buffer, key);
+                if (key.isValid() && key.isAcceptable()) {
+                    register(selector, serverChannel);
+                }
+                if (key.isValid() && key.isReadable()) {
+                    readRequests(buffer, key);
+                }
 
                 keys.remove();
             }
@@ -89,20 +98,26 @@ public class ReceiverTCP implements Receiver, Runnable {
 
     private void updateClientPartial(SocketChannel clientChannel, ByteBuffer buffer) {
         List<Byte> storedPartial = clientPartials.computeIfAbsent(clientChannel, k -> new ArrayList<>());
-        while (buffer.remaining() > 0) storedPartial.add(buffer.get());
+        while (buffer.remaining() > 0) {
+            storedPartial.add(buffer.get());
+        }
     }
 
     private void processMessages(SocketChannel clientChannel) {
         List<Byte> storedPartial = clientPartials.get(clientChannel);
         byte[] bytes = new byte[storedPartial.size()];
-        for (int i = 0; i < storedPartial.size(); i++) bytes[i] = storedPartial.get(i);
+        for (int i = 0; i < storedPartial.size(); i++) {
+            bytes[i] = storedPartial.get(i);
+        }
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
         // while there are messages long enough to figure out expected length
         while (buffer.remaining() >= Packet.MESSAGE_LENGTH_OFFSET + 4) {
             int length = buffer.getInt(buffer.position() + Packet.MESSAGE_LENGTH_OFFSET);
             // if full message is not available, finish
-            if (buffer.remaining() < length + Packet.BYTES_WITHOUT_MESSAGE) break;
+            if (buffer.remaining() < length + Packet.BYTES_WITHOUT_MESSAGE) {
+                break;
+            }
 
             byte[] packet = new byte[length + Packet.BYTES_WITHOUT_MESSAGE];
             buffer.get(packet);
@@ -110,7 +125,9 @@ public class ReceiverTCP implements Receiver, Runnable {
         }
         // store the remainder
         storedPartial.clear();
-        while (buffer.remaining() > 0) storedPartial.add(buffer.get());
+        while (buffer.remaining() > 0) {
+            storedPartial.add(buffer.get());
+        }
     }
 
     private void submitTask(byte[] request, SocketChannel clientChannel) {
@@ -122,11 +139,15 @@ public class ReceiverTCP implements Receiver, Runnable {
             e.printStackTrace();
             return;
         }
-        if (!handler.offer(task)) System.err.println("Packet dropped due to congestion");
+        if (!handler.offer(task)) {
+            System.err.println("Packet dropped due to congestion");
+        }
     }
 
     private void updateKeyRelevance(SelectionKey key) throws IOException {
-        if (!key.isValid() || !(key.channel() instanceof SocketChannel clientChannel)) return;
+        if (!key.isValid() || !(key.channel() instanceof SocketChannel clientChannel)) {
+            return;
+        }
 
         long lastActivityTime = (Long) key.attachment();
         long now = System.currentTimeMillis();
@@ -148,13 +169,15 @@ public class ReceiverTCP implements Receiver, Runnable {
 
     @Override
     public void close() throws ServerFailureException {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         try {
             selector.close();
         } catch (IOException e) {
             throw new ServerFailureException("Error while closing selector:");
         }
-         closed = true;
+        closed = true;
     }
 
     public boolean isClosed() {

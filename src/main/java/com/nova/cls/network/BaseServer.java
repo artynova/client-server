@@ -16,7 +16,9 @@ public abstract class BaseServer implements Server {
     }
 
     public void close() {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         listeningThread.interrupt();
         try {
             listeningThread.join(LISTENER_DIE_TIMEOUT_MILLIS);

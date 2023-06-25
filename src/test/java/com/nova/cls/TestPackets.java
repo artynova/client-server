@@ -11,7 +11,8 @@ import static org.junit.Assert.assertEquals;
 public class TestPackets {
     private static final short MAX_UNSIGNED_BYTE = Byte.MAX_VALUE * 2 + 1;
     private static final long MAX_UNSIGNED_INT = Integer.MAX_VALUE * 2L + 1L;
-    private static final BigInteger MAX_UNSIGNED_LONG = BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(2)).add(BigInteger.ONE);
+    private static final BigInteger MAX_UNSIGNED_LONG =
+        BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(2)).add(BigInteger.ONE);
 
     @Test
     public void testUnsignedInterpretation() {

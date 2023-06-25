@@ -35,7 +35,9 @@ public class ReceiverUDP implements Receiver, Runnable {
             try {
                 task = receiveRequestTask();
             } catch (SocketException e) {
-                if (Thread.currentThread().isInterrupted()) return; // if the thread is interrupted, the listening socket expectedly throws a SocketException
+                if (Thread.currentThread().isInterrupted()) {
+                    return; // if the thread is interrupted, the listening socket expectedly throws a SocketException
+                }
                 throw e; // throw exception back for standard logging
             }
         } catch (Exception e) {
@@ -43,7 +45,9 @@ public class ReceiverUDP implements Receiver, Runnable {
             e.printStackTrace();
             return;
         }
-        if (!handler.offer(task)) System.err.println("Packet dropped due to congestion");
+        if (!handler.offer(task)) {
+            System.err.println("Packet dropped due to congestion");
+        }
     }
 
     private RequestTaskUDP receiveRequestTask() throws IOException {
@@ -54,7 +58,9 @@ public class ReceiverUDP implements Receiver, Runnable {
     }
 
     private UDPInfo getInfoOn(DatagramPacket packet) {
-        return connectionInfo.computeIfAbsent(new InetSocketAddress(packet.getAddress(), packet.getPort()), k -> new UDPInfo(0, System.currentTimeMillis() - 1)); // put with expired session to not consider the packet id
+        return connectionInfo.computeIfAbsent(new InetSocketAddress(packet.getAddress(), packet.getPort()),
+            k -> new UDPInfo(0,
+                System.currentTimeMillis() - 1)); // put with expired session to not consider the packet id
     }
 
     // listening functionality is bundled into the receiver
@@ -67,7 +73,9 @@ public class ReceiverUDP implements Receiver, Runnable {
 
     @Override
     public void close() throws Exception {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         socket.close();
         closed = true;
     }

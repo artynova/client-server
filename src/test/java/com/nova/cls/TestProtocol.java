@@ -42,8 +42,9 @@ public abstract class TestProtocol {
     public void testOperation() {
         ExecutorService pool = Executors.newFixedThreadPool(getTestingThreads());
         List<Future<Void>> results = new ArrayList<>(getTestingThreads());
-        for (int i = 0; i < getTestingThreads(); i++)
+        for (int i = 0; i < getTestingThreads(); i++) {
             results.add(pool.submit(() -> executeThreadTest(handler)));
+        }
         for (int i = 0; i < getTestingThreads(); i++) {
             try {
                 results.get(i).get();

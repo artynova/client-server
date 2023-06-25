@@ -9,7 +9,8 @@ import java.util.Objects;
 public final class Message {
     public static final int BYTES_WITHOUT_BODY = 8;
 
-    private final int messageType; // changed from command type to message type to reflect the fact that it is used by both client and server, with different type classification
+    private final int messageType;
+    // changed from command type to message type to reflect the fact that it is used by both client and server, with different type classification
     private final int userId;
     private final String body;
 
@@ -49,10 +50,15 @@ public final class Message {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Message message = (Message) o;
-        return getMessageType() == message.getMessageType() && getUserId() == message.getUserId() && getBody().equals(message.getBody());
+        return getMessageType() == message.getMessageType() && getUserId() == message.getUserId() && getBody().equals(
+            message.getBody());
     }
 
     @Override
@@ -62,9 +68,7 @@ public final class Message {
 
     @Override
     public String toString() {
-        return "Message { " +
-                "commandType = " + getMessageTypeUnsigned() +
-                ", userId = " + getUserIdUnsigned() +
-                ", body = '" + getBody() + "' }";
+        return "Message { " + "commandType = " + getMessageTypeUnsigned() + ", userId = " + getUserIdUnsigned()
+            + ", body = '" + getBody() + "' }";
     }
 }

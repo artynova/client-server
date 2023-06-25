@@ -1,11 +1,13 @@
 package com.nova.cls.network.tcp;
 
-import com.nova.cls.data.FakeProcessor;
 import com.nova.cls.data.Processor;
 import com.nova.cls.network.RequestTask;
-import com.nova.cls.network.packets.*;
+import com.nova.cls.network.packets.BadPacketException;
+import com.nova.cls.network.packets.Decryptor;
+import com.nova.cls.network.packets.Encryptor;
+import com.nova.cls.network.packets.Message;
+import com.nova.cls.network.packets.Packet;
 
-import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 public class RequestTaskTCP implements RequestTask {

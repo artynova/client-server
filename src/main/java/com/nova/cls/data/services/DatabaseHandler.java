@@ -60,8 +60,7 @@ public class DatabaseHandler {
             statement.execute(CREATE_GROUPS_TABLE);
             statement.execute(CREATE_GOODS_TABLE);
         } catch (SQLException e) {
-            throw new DatabaseFailureException(
-                "Could not initialize the database", e);
+            throw new DatabaseFailureException("Could not initialize the database", e);
         } finally {
             closeConnection(connection);
         }
@@ -71,12 +70,10 @@ public class DatabaseHandler {
         try {
             Class.forName(DB_DRIVER_CLASSNAME);
             Connection connection = DriverManager.getConnection(DB_FILE_URL);
-            applyForeignKeysPragma(
-                connection); // without it SQLite ignores foreign key constraints
+            applyForeignKeysPragma(connection); // without it SQLite ignores foreign key constraints
             return connection;
         } catch (ClassNotFoundException | SQLException e) {
-            throw new DatabaseFailureException(
-                "Could not open database connection", e);
+            throw new DatabaseFailureException("Could not open database connection", e);
         }
     }
 
@@ -84,8 +81,7 @@ public class DatabaseHandler {
         try (Statement statement = connection.createStatement()) {
             statement.execute(NEW_CONNECTION_CONFIG_QUERY);
         } catch (SQLException e) {
-            throw new DatabaseFailureException(
-                "Could not apply foreign keys pragma", e);
+            throw new DatabaseFailureException("Could not apply foreign keys pragma", e);
         }
     }
 
@@ -93,8 +89,7 @@ public class DatabaseHandler {
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new DatabaseFailureException(
-                "Could not close database connection", e);
+            throw new DatabaseFailureException("Could not close database connection", e);
         }
     }
 }

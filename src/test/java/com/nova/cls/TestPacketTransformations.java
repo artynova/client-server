@@ -2,8 +2,12 @@ package com.nova.cls;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nova.cls.data.models.Group;
+import com.nova.cls.network.packets.BadPacketException;
+import com.nova.cls.network.packets.Decryptor;
+import com.nova.cls.network.packets.Encryptor;
+import com.nova.cls.network.packets.Message;
+import com.nova.cls.network.packets.Packet;
 import com.nova.cls.util.CRC16;
-import com.nova.cls.network.packets.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

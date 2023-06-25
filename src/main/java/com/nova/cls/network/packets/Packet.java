@@ -9,7 +9,8 @@ public final class Packet {
     public static final int PACKET_ID_OFFSET = 2;
     public static final int MESSAGE_LENGTH_OFFSET = 10;
     public static final int BYTES_WITHOUT_MESSAGE = 18;
-    public static final int MIN_BYTES = 42; // 26 total bytes for known-size fields, 16 is the minimal properly encrypted message body
+    public static final int MIN_BYTES = 42;
+    // 26 total bytes for known-size fields, 16 is the minimal properly encrypted message body
 
     private final byte source;
     private final long packetId;
@@ -26,7 +27,8 @@ public final class Packet {
     }
 
     public short getSourceUnsigned() {
-        return (short) Byte.toUnsignedInt(source); // byte cannot represent an unsigned value that will not fit in a short
+        return (short) Byte.toUnsignedInt(
+            source); // byte cannot represent an unsigned value that will not fit in a short
     }
 
     public long getPacketId() {
@@ -43,10 +45,15 @@ public final class Packet {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Packet packet = (Packet) o;
-        return getSource() == packet.getSource() && getPacketId() == packet.getPacketId() && getMessage().equals(packet.getMessage());
+        return getSource() == packet.getSource() && getPacketId() == packet.getPacketId() && getMessage().equals(
+            packet.getMessage());
     }
 
     @Override
@@ -56,9 +63,7 @@ public final class Packet {
 
     @Override
     public String toString() {
-        return "Packet { source = " + getSourceUnsigned() +
-                ", packetId = " + getPacketIdUnsigned() +
-                ", message = " + getMessage() +
-                " }";
+        return "Packet { source = " + getSourceUnsigned() + ", packetId = " + getPacketIdUnsigned() + ", message = "
+            + getMessage() + " }";
     }
 }

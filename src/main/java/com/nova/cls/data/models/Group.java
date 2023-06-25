@@ -49,8 +49,7 @@ public class Group {
             return false;
         }
         Group group = (Group) o;
-        return Objects.equals(getGroupId(), group.getGroupId())
-            && Objects.equals(getGroupName(), group.getGroupName())
+        return Objects.equals(getGroupId(), group.getGroupId()) && Objects.equals(getGroupName(), group.getGroupName())
             && Objects.equals(getDescription(), group.getDescription());
     }
 
@@ -61,9 +60,7 @@ public class Group {
 
     @Override
     public String toString() {
-        return "Group {" + "groupId=" + getGroupId()
-            + ", groupName='" + getGroupName() + '\''
-            + ", description='" + getDescription() + '\''
-            + '}';
+        return "Group {" + "groupId=" + getGroupId() + ", groupName='" + getGroupName() + '\'' + ", description='"
+            + getDescription() + '\'' + '}';
     }
 }

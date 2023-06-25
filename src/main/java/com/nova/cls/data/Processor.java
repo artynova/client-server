@@ -28,19 +28,15 @@ public class Processor implements AutoCloseable {
     private final CloseableThreadLocal<Connection> connectionLocal =
         new CloseableThreadLocal<>(DatabaseHandler::getConnection);
     private final CloseableThreadLocal<GroupsService> groupsServiceLocal =
-        new CloseableThreadLocal<>(
-            () -> new GroupsService(connectionLocal.get()));
+        new CloseableThreadLocal<>(() -> new GroupsService(connectionLocal.get()));
     private final CloseableThreadLocal<GoodsService> goodsServiceLocal =
-        new CloseableThreadLocal<>(
-            () -> new GoodsService(connectionLocal.get()));
+        new CloseableThreadLocal<>(() -> new GoodsService(connectionLocal.get()));
     private boolean closed = false;
 
     public Message process(Message request) {
         try {
-            return makeResponse(request, Response.OK,
-                makeResponseBody(request));
-        } catch (BadRequestException |
-            JsonProcessingException |
+            return makeResponse(request, Response.OK, makeResponseBody(request));
+        } catch (BadRequestException | JsonProcessingException |
             // json processing exception occurs when json payload is malformed, which qualifies as a bad request
             NumberFormatException e) { // this occurs when an id payload is malformed (not an integer string)
             return makeResponse(request, Response.BAD_REQUEST, e.getMessage());
@@ -50,13 +46,11 @@ public class Processor implements AutoCloseable {
         }
     }
 
-    private String makeResponseBody(Message request)
-        throws JsonProcessingException {
+    private String makeResponseBody(Message request) throws JsonProcessingException {
         long commandIndex = request.getMessageTypeUnsigned();
         if (commandIndex > Command.values().length) {
             throw new BadRequestException(
-                "Command index " + commandIndex + " is too big, max is " + (
-                    Command.values().length - 1));
+                "Command index " + commandIndex + " is too big, max is " + (Command.values().length - 1));
         }
 
         Command command = Command.get((int) commandIndex);
@@ -80,8 +74,8 @@ public class Processor implements AutoCloseable {
     }
 
     private String createGroup(String body) throws JsonProcessingException {
-        return String.valueOf(groupsServiceLocal.get().create(
-            mapper.readValue(body, Group.class))); // return id of created group
+        return String.valueOf(
+            groupsServiceLocal.get().create(mapper.readValue(body, Group.class))); // return id of created group
     }
 
     private String findOneGroup(String body) throws JsonProcessingException {
@@ -93,8 +87,7 @@ public class Processor implements AutoCloseable {
         if ("".equals(body)) {
             body = "{}";
         }
-        GroupsCriterion[] criteria =
-            mapper.readValue(body, GroupsCriteriaAggregate.class).criteria();
+        GroupsCriterion[] criteria = mapper.readValue(body, GroupsCriteriaAggregate.class).criteria();
         List<Group> result = groupsServiceLocal.get().findAll(criteria);
         return mapper.writeValueAsString(result);
     }
@@ -111,8 +104,8 @@ public class Processor implements AutoCloseable {
     }
 
     private String createGood(String body) throws JsonProcessingException {
-        return String.valueOf(goodsServiceLocal.get().create(
-            mapper.readValue(body, Good.class))); // return id of created good
+        return String.valueOf(
+            goodsServiceLocal.get().create(mapper.readValue(body, Good.class))); // return id of created good
     }
 
     private String findOneGood(String body) throws JsonProcessingException {
@@ -124,8 +117,7 @@ public class Processor implements AutoCloseable {
         if ("".equals(body)) {
             body = "{}";
         }
-        GoodsCriterion[] criteria =
-            mapper.readValue(body, GoodsCriteriaAggregate.class).criteria();
+        GoodsCriterion[] criteria = mapper.readValue(body, GoodsCriteriaAggregate.class).criteria();
         List<Good> result = goodsServiceLocal.get().findAll(criteria);
         return mapper.writeValueAsString(result);
     }
@@ -137,29 +129,22 @@ public class Processor implements AutoCloseable {
     }
 
     private String addGoodQuantity(String body) throws JsonProcessingException {
-        OffsetGoodQuantity quantity =
-            mapper.readValue(body, OffsetGoodQuantity.class);
+        OffsetGoodQuantity quantity = mapper.readValue(body, OffsetGoodQuantity.class);
         if (quantity.getOffset() < 0) {
             throw new BadRequestException(
-                "Cannot add less than 0 goods units (" + quantity.getOffset()
-                    + "), use subtraction instead");
+                "Cannot add less than 0 goods units (" + quantity.getOffset() + "), use subtraction instead");
         }
-        goodsServiceLocal.get()
-            .addQuantity(quantity.getGoodId(), quantity.getOffset());
+        goodsServiceLocal.get().addQuantity(quantity.getGoodId(), quantity.getOffset());
         return "";
     }
 
-    private String subtractGoodQuantity(String body)
-        throws JsonProcessingException {
-        OffsetGoodQuantity quantity =
-            mapper.readValue(body, OffsetGoodQuantity.class);
+    private String subtractGoodQuantity(String body) throws JsonProcessingException {
+        OffsetGoodQuantity quantity = mapper.readValue(body, OffsetGoodQuantity.class);
         if (quantity.getOffset() < 0) {
             throw new BadRequestException(
-                "Cannot subtract less than 0 goods units ("
-                    + quantity.getOffset() + "), use addition instead");
+                "Cannot subtract less than 0 goods units (" + quantity.getOffset() + "), use addition instead");
         }
-        goodsServiceLocal.get()
-            .subtractQuantity(quantity.getGoodId(), quantity.getOffset());
+        goodsServiceLocal.get().subtractQuantity(quantity.getGoodId(), quantity.getOffset());
         return "";
     }
 
@@ -168,8 +153,7 @@ public class Processor implements AutoCloseable {
         return "";
     }
 
-    private Message makeResponse(Message request, Response responseType,
-        String body) {
+    private Message makeResponse(Message request, Response responseType, String body) {
         return new Message(responseType, request.getUserId(), body);
     }
 

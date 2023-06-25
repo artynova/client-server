@@ -8,25 +8,12 @@ public class CipherUtils {
     private static final String ALGORITHM = "AES";
     private static final String MODE = "ECB/PKCS5Padding";
 
-    private static final Key secretKey = new SecretKeySpec(new byte[]{
-            (byte) 0xDE,
-            (byte) 0xAD,
-            (byte) 0xCA,
-            (byte) 0xFE,
-            (byte) 0xDE,
-            (byte) 0xAD,
-            (byte) 0xBE,
-            (byte) 0xEF,
-            (byte) 0xDE,
-            (byte) 0xAD,
-            (byte) 0xCA,
-            (byte) 0xFE,
-            (byte) 0xDE,
-            (byte) 0xAD,
-            (byte) 0xBE,
+    private static final Key secretKey = new SecretKeySpec(
+        new byte[] {(byte) 0xDE, (byte) 0xAD, (byte) 0xCA, (byte) 0xFE, (byte) 0xDE, (byte) 0xAD, (byte) 0xBE,
+            (byte) 0xEF, (byte) 0xDE, (byte) 0xAD, (byte) 0xCA, (byte) 0xFE, (byte) 0xDE, (byte) 0xAD, (byte) 0xBE,
             (byte) 0xEF,
 
-    }, ALGORITHM);
+        }, ALGORITHM);
 
     public static Cipher createCipher(int mode) {
         try {
@@ -34,7 +21,8 @@ public class CipherUtils {
             cipher.init(mode, secretKey);
             return cipher;
         } catch (Exception e) {
-            throw new CipherException(e.getMessage(), e); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
+            throw new CipherException(e.getMessage(),
+                e); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
         }
     }
 
@@ -42,7 +30,8 @@ public class CipherUtils {
         try {
             cipher.init(mode, secretKey);
         } catch (Exception e) {
-            throw new CipherException(e.getMessage(), e); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
+            throw new CipherException(e.getMessage(),
+                e); // With proper settings, cipher initialization should never fail, so this is likely non-recoverable
         }
     }
 }

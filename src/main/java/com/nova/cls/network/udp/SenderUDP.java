@@ -14,6 +14,7 @@ public class SenderUDP {
             throw new ExceptionInInitializerError(e);
         }
     });
+
     public void sendPacket(DatagramPacket datagramPacket) {
         try {
             localSocket.get().send(datagramPacket);

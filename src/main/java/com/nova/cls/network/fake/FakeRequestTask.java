@@ -1,8 +1,12 @@
 package com.nova.cls.network.fake;
 
-import com.nova.cls.network.packets.*;
 import com.nova.cls.data.FakeProcessor;
 import com.nova.cls.network.RequestTask;
+import com.nova.cls.network.packets.BadPacketException;
+import com.nova.cls.network.packets.Decryptor;
+import com.nova.cls.network.packets.Encryptor;
+import com.nova.cls.network.packets.Message;
+import com.nova.cls.network.packets.Packet;
 
 import java.net.InetAddress;
 

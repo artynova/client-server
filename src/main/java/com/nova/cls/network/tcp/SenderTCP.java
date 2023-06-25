@@ -9,7 +9,9 @@ public class SenderTCP {
         try {
             // cannot send more than one response at a time
             synchronized (clientChannel) {
-                if (!clientChannel.isConnected()) return;
+                if (!clientChannel.isConnected()) {
+                    return;
+                }
                 clientChannel.write(ByteBuffer.wrap(outgoing));
             }
         } catch (IOException e) {

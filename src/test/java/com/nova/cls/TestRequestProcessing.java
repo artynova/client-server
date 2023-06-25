@@ -36,8 +36,7 @@ public class TestRequestProcessing {
         FakeSender.setVerbose(VERBOSE);
 
         BatchRequestHandler handler =
-            new BatchRequestHandler(MAX_HANDLER_THREADS, HANDLER_BATCH_SIZE,
-                HANDLER_INTERVAL_MILLIS);
+            new BatchRequestHandler(MAX_HANDLER_THREADS, HANDLER_BATCH_SIZE, HANDLER_INTERVAL_MILLIS);
         ExecutorService pool = Executors.newFixedThreadPool(TESTING_THREADS);
         List<Future<Void>> results = new ArrayList<>(TESTING_THREADS);
         for (int i = 0; i < TESTING_THREADS; i++) {
@@ -56,16 +55,14 @@ public class TestRequestProcessing {
         handler.close();
     }
 
-    private Void executeThreadTest(BatchRequestHandler handler)
-        throws Exception {
+    private Void executeThreadTest(BatchRequestHandler handler) throws Exception {
         FakeReceiver receiver = new FakeReceiver(handler);
         List<FakeRequestTask> tasks = new ArrayList<>(PACKETS_PER_THREAD);
         // schedule all tasks
         for (int i = 0; i < PACKETS_PER_THREAD; i++) {
             receiver.receivePacket();
             FakeRequestTask task = receiver.getLastTask();
-            assertNotEquals("Request unexpectedly dropped due to congestion",
-                null, task);
+            assertNotEquals("Request unexpectedly dropped due to congestion", null, task);
             tasks.add(task);
         }
         // get results from all handlers

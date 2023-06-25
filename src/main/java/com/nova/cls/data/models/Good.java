@@ -14,8 +14,8 @@ public class Good {
     public Good() {
     }
 
-    public Good(long goodId, String goodName, String description,
-        String manufacturer, long quantity, long price, long groupId) {
+    public Good(long goodId, String goodName, String description, String manufacturer, long quantity, long price,
+        long groupId) {
         this.goodId = goodId;
         this.goodName = goodName;
         this.description = description;
@@ -90,27 +90,22 @@ public class Good {
             return false;
         }
         Good good = (Good) o;
-        return Objects.equals(getGoodId(), good.getGoodId())
-            && Objects.equals(getGoodName(), good.getGoodName())
-            && Objects.equals(getDescription(), good.getDescription())
-            && Objects.equals(getManufacturer(), good.getManufacturer())
-            && Objects.equals(getQuantity(), good.getQuantity())
-            && Objects.equals(getPrice(), good.getPrice())
-            && Objects.equals(getGroupId(), good.getGroupId());
+        return Objects.equals(getGoodId(), good.getGoodId()) && Objects.equals(getGoodName(), good.getGoodName())
+            && Objects.equals(getDescription(), good.getDescription()) && Objects.equals(getManufacturer(),
+            good.getManufacturer()) && Objects.equals(getQuantity(), good.getQuantity()) && Objects.equals(getPrice(),
+            good.getPrice()) && Objects.equals(getGroupId(), good.getGroupId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getGoodId(), getGoodName(), getDescription(),
-            getManufacturer(), getQuantity(), getPrice(), getGroupId());
+        return Objects.hash(getGoodId(), getGoodName(), getDescription(), getManufacturer(), getQuantity(), getPrice(),
+            getGroupId());
     }
 
     @Override
     public String toString() {
-        return "Good {" + "goodId=" + getGoodId() + ", goodName='"
-            + getGoodName() + '\'' + ", description='" + getDescription() + '\''
-            + ", manufacturer='" + getManufacturer() + '\'' + ", quantity="
-            + getQuantity() + ", price=" + getPrice() + ", groupId='"
-            + getGroupId() + '\'' + '}';
+        return "Good {" + "goodId=" + getGoodId() + ", goodName='" + getGoodName() + '\'' + ", description='"
+            + getDescription() + '\'' + ", manufacturer='" + getManufacturer() + '\'' + ", quantity=" + getQuantity()
+            + ", price=" + getPrice() + ", groupId='" + getGroupId() + '\'' + '}';
     }
 }

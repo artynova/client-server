@@ -23,13 +23,19 @@ public class BatchRequestHandler implements AutoCloseable {
     private boolean closed = false;
 
     public BatchRequestHandler(int threads, int maxBatchSize, int handleIntervalMillis) {
-        if (threads < 1) throw new IllegalArgumentException("Threads < 1: " + threads);
-        if (maxBatchSize < 1) throw new IllegalArgumentException("Max batch size < 1: " + maxBatchSize);
-        if (handleIntervalMillis < 1)
+        if (threads < 1) {
+            throw new IllegalArgumentException("Threads < 1: " + threads);
+        }
+        if (maxBatchSize < 1) {
+            throw new IllegalArgumentException("Max batch size < 1: " + maxBatchSize);
+        }
+        if (handleIntervalMillis < 1) {
             throw new IllegalArgumentException("Handle interval (in milliseconds) < 1: " + handleIntervalMillis);
+        }
         pool = Executors.newFixedThreadPool(threads);
         this.maxBatchSize = maxBatchSize;
-        queue = new ArrayBlockingQueue<>(maxBatchSize * threads * BUFFER_MULTIPLIER); // extra buffer space is for congestion spikes
+        queue = new ArrayBlockingQueue<>(
+            maxBatchSize * threads * BUFFER_MULTIPLIER); // extra buffer space is for congestion spikes
 
         timer = new Timer();
         timer.scheduleAtFixedRate(new BatchHandlingTimerTask(), handleIntervalMillis, handleIntervalMillis);
@@ -41,7 +47,9 @@ public class BatchRequestHandler implements AutoCloseable {
 
     @Override
     public void close() {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         ThreadUtils.shutdown(pool);
         timer.cancel();
         closed = true;
@@ -52,10 +60,15 @@ public class BatchRequestHandler implements AutoCloseable {
     }
 
     public boolean offer(RequestTask handler) {
-        if (closed)
+        if (closed) {
             throw new UnsupportedOperationException("Trying to offer a task to a shutdown batch request handler");
-        if (!queue.offer(handler)) return false;
-        if (queue.size() >= maxBatchSize) handleBatch();
+        }
+        if (!queue.offer(handler)) {
+            return false;
+        }
+        if (queue.size() >= maxBatchSize) {
+            handleBatch();
+        }
         return true;
     }
 
