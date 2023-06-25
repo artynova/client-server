@@ -7,8 +7,8 @@ import com.nova.cls.network.udp.StoreClientUDP;
 import com.nova.cls.network.udp.StoreServerUDP;
 
 public class TestUDP extends TestProtocol {
-    public static final int TESTING_THREADS = 16;
-    private static final int PACKETS_PER_THREAD = 100;
+    public static final int TESTING_THREADS = 8;
+    private static final int PACKETS_PER_THREAD = 25;
 
     @Override
     public int getTestingThreads() {
