@@ -1,14 +1,23 @@
 package com.nova.cls.data.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import java.util.Objects;
 
 public class Good {
+    @JsonView({Views.ReadView.class, Views.UpdateView.class})
     private long goodId;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String goodName;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String description;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String manufacturer;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private long quantity;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private long price; // in kopiykas
+    @JsonView({Views.ReadView.class, Views.CreateView.class})
     private long groupId;
 
     public Good() {

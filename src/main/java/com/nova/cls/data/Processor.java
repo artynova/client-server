@@ -1,21 +1,19 @@
 package com.nova.cls.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nova.cls.data.models.Good;
+import com.nova.cls.data.models.GoodsJsonMapper;
 import com.nova.cls.data.models.Group;
+import com.nova.cls.data.models.GroupsJsonMapper;
 import com.nova.cls.data.models.OffsetGoodQuantity;
 import com.nova.cls.data.services.DatabaseHandler;
 import com.nova.cls.data.services.GoodsService;
 import com.nova.cls.data.services.GroupsService;
-import com.nova.cls.data.services.criteria.goods.GoodsCriteriaAggregate;
-import com.nova.cls.data.services.criteria.goods.GoodsCriterion;
-import com.nova.cls.data.services.criteria.groups.GroupsCriteriaAggregate;
-import com.nova.cls.data.services.criteria.groups.GroupsCriterion;
+import com.nova.cls.data.services.criteria.Criterion;
 import com.nova.cls.network.packets.Message;
 import com.nova.cls.util.CloseableThreadLocal;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
@@ -24,7 +22,8 @@ public class Processor implements AutoCloseable {
         DatabaseHandler.initDatabase();
     }
 
-    private final ObjectMapper mapper = new JsonMapper();
+    private final GroupsJsonMapper groupsMapper = new GroupsJsonMapper();
+    private final GoodsJsonMapper goodsMapper = new GoodsJsonMapper();
     private final CloseableThreadLocal<Connection> connectionLocal =
         new CloseableThreadLocal<>(DatabaseHandler::getConnection);
     private final CloseableThreadLocal<GroupsService> groupsServiceLocal =
@@ -38,7 +37,7 @@ public class Processor implements AutoCloseable {
             return makeResponse(request, Response.OK, makeResponseBody(request));
         } catch (BadRequestException | JsonProcessingException |
             // json processing exception occurs when json payload is malformed, which qualifies as a bad request
-            NumberFormatException e) { // this occurs when an id payload is malformed (not an integer string)
+            NumberFormatException e) { // NumberFormatException occurs when an id payload is malformed (not an integer string)
             return makeResponse(request, Response.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,7 +45,7 @@ public class Processor implements AutoCloseable {
         }
     }
 
-    private String makeResponseBody(Message request) throws JsonProcessingException {
+    private String makeResponseBody(Message request) throws IOException {
         long commandIndex = request.getMessageTypeUnsigned();
         if (commandIndex > Command.values().length) {
             throw new BadRequestException(
@@ -73,63 +72,55 @@ public class Processor implements AutoCloseable {
         };
     }
 
-    private String createGroup(String body) throws JsonProcessingException {
-        return String.valueOf(
-            groupsServiceLocal.get().create(mapper.readValue(body, Group.class))); // return id of created group
+    private String createGroup(String body) throws IOException {
+        long id = groupsServiceLocal.get().create(groupsMapper.fromCreateJson(body));
+        return String.valueOf(id); // return id of created group
     }
 
     private String findOneGroup(String body) throws JsonProcessingException {
-        Group result = groupsServiceLocal.get().findOne(Integer.parseInt(body));
-        return mapper.writeValueAsString(result);
+        Group result = groupsServiceLocal.get().findOne(Long.parseLong(body));
+        return groupsMapper.toReadJson(result);
     }
 
-    private String findManyGroups(String body) throws JsonProcessingException {
-        if ("".equals(body)) {
-            body = "{}";
-        }
-        GroupsCriterion[] criteria = mapper.readValue(body, GroupsCriteriaAggregate.class).criteria();
+    private String findManyGroups(String body) throws IOException {
+        List<Criterion<Group>> criteria = groupsMapper.fromCriteriaJson(body).criteria();
         List<Group> result = groupsServiceLocal.get().findAll(criteria);
-        return mapper.writeValueAsString(result);
+        return groupsMapper.toReadManyJson(result);
     }
 
-    private String updateGroup(String body) throws JsonProcessingException {
-        Group group = mapper.readValue(body, Group.class);
-        groupsServiceLocal.get().update(group);
+    private String updateGroup(String body) throws IOException {
+        groupsServiceLocal.get().update(groupsMapper.fromUpdateJson(body));
         return "";
     }
 
     private String deleteGroup(String body) {
-        groupsServiceLocal.get().delete(Integer.parseInt(body));
+        groupsServiceLocal.get().delete(Long.parseLong(body));
         return "";
     }
 
-    private String createGood(String body) throws JsonProcessingException {
-        return String.valueOf(
-            goodsServiceLocal.get().create(mapper.readValue(body, Good.class))); // return id of created good
+    private String createGood(String body) throws IOException {
+        long id = goodsServiceLocal.get().create(goodsMapper.fromCreateJson(body));
+        return String.valueOf(id); // return id of created good
     }
 
     private String findOneGood(String body) throws JsonProcessingException {
-        Good result = goodsServiceLocal.get().findOne(Integer.parseInt(body));
-        return mapper.writeValueAsString(result);
+        Good result = goodsServiceLocal.get().findOne(Long.parseLong(body));
+        return goodsMapper.toReadJson(result);
     }
 
-    private String findManyGoods(String body) throws JsonProcessingException {
-        if ("".equals(body)) {
-            body = "{}";
-        }
-        GoodsCriterion[] criteria = mapper.readValue(body, GoodsCriteriaAggregate.class).criteria();
+    private String findManyGoods(String body) throws IOException {
+        List<Criterion<Good>> criteria = goodsMapper.fromCriteriaJson(body).criteria();
         List<Good> result = goodsServiceLocal.get().findAll(criteria);
-        return mapper.writeValueAsString(result);
+        return goodsMapper.toReadManyJson(result);
     }
 
-    private String updateGood(String body) throws JsonProcessingException {
-        Good good = mapper.readValue(body, Good.class);
-        goodsServiceLocal.get().update(good);
+    private String updateGood(String body) throws IOException {
+        goodsServiceLocal.get().update(goodsMapper.fromUpdateJson(body));
         return "";
     }
 
-    private String addGoodQuantity(String body) throws JsonProcessingException {
-        OffsetGoodQuantity quantity = mapper.readValue(body, OffsetGoodQuantity.class);
+    private String addGoodQuantity(String body) throws IOException {
+        OffsetGoodQuantity quantity = goodsMapper.fromOffsetQuantityJson(body);
         if (quantity.getOffset() < 0) {
             throw new BadRequestException(
                 "Cannot add less than 0 goods units (" + quantity.getOffset() + "), use subtraction instead");
@@ -138,8 +129,8 @@ public class Processor implements AutoCloseable {
         return "";
     }
 
-    private String subtractGoodQuantity(String body) throws JsonProcessingException {
-        OffsetGoodQuantity quantity = mapper.readValue(body, OffsetGoodQuantity.class);
+    private String subtractGoodQuantity(String body) throws IOException {
+        OffsetGoodQuantity quantity = goodsMapper.fromOffsetQuantityJson(body);
         if (quantity.getOffset() < 0) {
             throw new BadRequestException(
                 "Cannot subtract less than 0 goods units (" + quantity.getOffset() + "), use addition instead");
@@ -149,7 +140,7 @@ public class Processor implements AutoCloseable {
     }
 
     private String deleteGood(String body) {
-        goodsServiceLocal.get().delete(Integer.parseInt(body));
+        goodsServiceLocal.get().delete(Long.parseLong(body));
         return "";
     }
 

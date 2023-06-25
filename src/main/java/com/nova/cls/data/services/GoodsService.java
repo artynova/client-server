@@ -2,7 +2,6 @@ package com.nova.cls.data.services;
 
 import com.nova.cls.data.BadRequestException;
 import com.nova.cls.data.models.Good;
-import com.nova.cls.data.services.criteria.goods.GoodsCriterion;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-public class GoodsService extends Service<Good, GoodsCriterion> {
+public class GoodsService extends Service<Good> {
     private static final String TABLE_NAME = "Goods";
     private static final String ID_NAME = "goodId";
     private static final String[] CREATE_FIELDS =

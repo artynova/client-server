@@ -1,7 +1,6 @@
 package com.nova.cls.data.services;
 
 import com.nova.cls.data.models.Group;
-import com.nova.cls.data.services.criteria.groups.GroupsCriterion;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-public class GroupsService extends Service<Group, GroupsCriterion> {
+public class GroupsService extends Service<Group> {
     private static final String TABLE_NAME = "Groups";
     private static final String ID_NAME = "groupId";
     private static final String[] CREATE_FIELDS = new String[] {"groupName", "description"};

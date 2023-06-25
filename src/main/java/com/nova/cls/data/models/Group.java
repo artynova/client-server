@@ -1,10 +1,15 @@
 package com.nova.cls.data.models;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import java.util.Objects;
 
 public class Group {
+    @JsonView({Views.ReadView.class, Views.UpdateView.class})
     private long groupId;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String groupName;
+    @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String description;
 
     public Group() {

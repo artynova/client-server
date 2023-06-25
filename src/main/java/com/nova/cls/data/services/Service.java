@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class Service<Model, ModelCriterion extends Criterion> implements AutoCloseable {
+public abstract class Service<Model> implements AutoCloseable {
     protected final Connection connection;
     private final String tableName;
     private final String idName;
@@ -77,14 +77,14 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         }
     }
 
-    public int create(Model model) {
+    public long create(Model model) {
         fillCreateParams(model, insertStatement);
         ResultSet generatedIdSet;
-        int generatedId;
+        long generatedId;
         try {
             generatedIdSet = insertStatement.executeQuery();
             generatedIdSet.next();
-            generatedId = generatedIdSet.getInt(idName);
+            generatedId = generatedIdSet.getLong(idName);
         } catch (SQLException e) {
             checkConstraintError(e,
                 "Constraint failure when inserting " + model + " into " + tableName + " table: " + e.getMessage());
@@ -99,7 +99,7 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         return generatedId;
     }
 
-    public Model findOne(int id) {
+    public Model findOne(long id) {
         fillId(selectOneStatement, 1, id);
 
         Model model;
@@ -144,7 +144,7 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         }
     }
 
-    public void delete(int id) {
+    public void delete(long id) {
         fillId(deleteStatement, 1, id);
         try {
             if (deleteStatement.executeUpdate() < 1) {
@@ -156,15 +156,13 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         }
     }
 
-    @SafeVarargs
-    public final List<Model> findAll(ModelCriterion... criteria) {
-        String filteringPart = Arrays.stream(criteria).map(Criterion::getSql).collect(Collectors.joining(" AND "));
+    public final List<Model> findAll(List<Criterion<Model>> list) {
+        String filteringPart = list.stream().map(Criterion::getSql).collect(Collectors.joining(" AND "));
         String query = "SELECT * FROM " + tableName + (filteringPart.isEmpty() ? ";" : " WHERE " + filteringPart + ";");
         PreparedStatement statement;
         try {
             statement = connection.prepareStatement(query);
-            Object[] values =
-                Arrays.stream(criteria).flatMap(criterion -> Arrays.stream(criterion.getValues())).toArray();
+            Object[] values = list.stream().flatMap(criterion -> Arrays.stream(criterion.getValues())).toArray();
             for (int i = 0; i < values.length; i++) {
                 statement.setObject(i + 1, values[i]);
             }

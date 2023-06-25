@@ -1,6 +1,9 @@
 package com.nova.cls.data.services.criteria.goods;
 
-public class GroupIdCriterion extends GoodsCriterion {
+import com.nova.cls.data.models.Good;
+import com.nova.cls.data.services.criteria.Criterion;
+
+public class GroupIdCriterion extends Criterion<Good> {
     private static final String SQL = "groupId = ?";
 
     public GroupIdCriterion(long groupId) {

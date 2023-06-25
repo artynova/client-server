@@ -1,6 +1,9 @@
 package com.nova.cls.data.services.criteria.groups;
 
-public class HasGoodsCriterion extends GroupsCriterion {
+import com.nova.cls.data.models.Group;
+import com.nova.cls.data.services.criteria.Criterion;
+
+public class HasGoodsCriterion extends Criterion<Group> {
     private static final String SQL = """
         ? = (EXISTS (
             SELECT *

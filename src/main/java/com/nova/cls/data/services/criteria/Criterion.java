@@ -3,8 +3,10 @@ package com.nova.cls.data.services.criteria;
 /**
  * Base criterion that holds text of a parametrized filter to be used in a WHERE clause,
  * and an array of values to be substituted in it.
+ *
+ * @param <Model> Model class, to avoid mixing up criteria.
  */
-public class Criterion {
+public class Criterion<Model> {
     private final String sql;
     private final Object[] values;
 

@@ -1,6 +1,9 @@
 package com.nova.cls.data.services.criteria.goods;
 
-public class MaxQuantityCriterion extends GoodsCriterion {
+import com.nova.cls.data.models.Good;
+import com.nova.cls.data.services.criteria.Criterion;
+
+public class MaxQuantityCriterion extends Criterion<Good> {
     private static final String SQL = "quantity <= ?";
 
     public MaxQuantityCriterion(long quantity) {
