@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class Service<Model, ModelCriterion extends Criterion> implements AutoCloseable {
+public abstract class Service<Model, ModelCriterion extends Criterion>
+    implements AutoCloseable {
     protected final Connection connection;
     private final String tableName;
     private final String idName;
@@ -24,7 +25,8 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
     private final PreparedStatement deleteStatement;
     private boolean closed = false;
 
-    public Service(Connection connection, String tableName, String idName, String[] createFields, String[] updateFields) {
+    protected Service(Connection connection, String tableName, String idName,
+        String[] createFields, String[] updateFields) {
         this.connection = connection;
         this.tableName = tableName;
         this.idName = idName;
@@ -38,38 +40,51 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
     }
 
     private PreparedStatement initInsertStatement() {
-        String insertQuery = "INSERT INTO " + tableName + " (" + String.join(", ", createFields) + ") VALUES (" + ", ?".repeat(createFields.length).substring(2) + ") RETURNING " + idName + ";";
+        String insertQuery =
+            "INSERT INTO " + tableName + " (" + String.join(", ", createFields)
+                + ") VALUES (" + ", ?".repeat(createFields.length).substring(2)
+                + ") RETURNING " + idName + ";";
         try {
             return connection.prepareStatement(insertQuery);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not initialize insert " + tableName + " statement", e);
+            throw new DatabaseFailureException(
+                "Could not initialize insert " + tableName + " statement", e);
         }
     }
 
     private PreparedStatement initSelectOneStatement() {
-        String selectQuery = "SELECT * FROM " + tableName + " WHERE " + idName + " = ?;";
+        String selectQuery =
+            "SELECT * FROM " + tableName + " WHERE " + idName + " = ?;";
         try {
             return connection.prepareStatement(selectQuery);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not initialize select one " + tableName + " statement", e);
+            throw new DatabaseFailureException(
+                "Could not initialize select one " + tableName + " statement",
+                e);
         }
     }
 
     private PreparedStatement initUpdateStatement() {
-        String updateQuery = "UPDATE " + tableName + " SET " + Arrays.stream(updateFields).map(field -> field + " = ?").collect(Collectors.joining(", ")) + " WHERE " + idName + " = ?;";
+        String updateQuery =
+            "UPDATE " + tableName + " SET " + Arrays.stream(updateFields)
+                .map(field -> field + " = ?").collect(Collectors.joining(", "))
+                + " WHERE " + idName + " = ?;";
         try {
             return connection.prepareStatement(updateQuery);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not initialize update " + tableName + " statement", e);
+            throw new DatabaseFailureException(
+                "Could not initialize update " + tableName + " statement", e);
         }
     }
 
     private PreparedStatement initDeleteStatement() {
-        String deleteQuery = "DELETE FROM " + tableName + " WHERE " + idName + " = ?;";
+        String deleteQuery =
+            "DELETE FROM " + tableName + " WHERE " + idName + " = ?;";
         try {
             return connection.prepareStatement(deleteQuery);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not initialize delete " + tableName + " statement", e);
+            throw new DatabaseFailureException(
+                "Could not initialize delete " + tableName + " statement", e);
         }
     }
 
@@ -82,13 +97,18 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
             generatedIdSet.next();
             generatedId = generatedIdSet.getInt(idName);
         } catch (SQLException e) {
-            checkConstraintError(e, "Constraint failure when inserting " + model + " into " + tableName + " table: " + e.getMessage());
-            throw new DatabaseFailureException("Failed to create " + model + " in " + tableName + " table: " + e.getMessage(), e);
+            checkConstraintError(e,
+                "Constraint failure when inserting " + model + " into "
+                    + tableName + " table: " + e.getMessage());
+            throw new DatabaseFailureException(
+                "Failed to create " + model + " in " + tableName + " table: "
+                    + e.getMessage(), e);
         }
         try {
             generatedIdSet.close();
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Failed to close generated id result set");
+            throw new DatabaseFailureException(
+                "Failed to close generated id result set");
         }
         return generatedId;
     }
@@ -100,17 +120,24 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         ResultSet set;
         try {
             set = selectOneStatement.executeQuery();
-            if (!set.next())
-                throw new BadRequestException("Requested entity " + id + " in " + tableName + " table does not exist");
+            if (!set.next()) {
+                throw new BadRequestException(
+                    "Requested entity " + id + " in " + tableName
+                        + " table does not exist");
+            }
             model = getModel(set);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Failed to find " + id + " in " + tableName + " table: " + e.getMessage(), e);
+            throw new DatabaseFailureException(
+                "Failed to find " + id + " in " + tableName + " table: "
+                    + e.getMessage(), e);
         }
 
         try {
             set.close();
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not close result set for select one from " + tableName + " table", e);
+            throw new DatabaseFailureException(
+                "Could not close result set for select one from " + tableName
+                    + " table", e);
         }
         return model;
     }
@@ -123,41 +150,60 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         int id = getId(model);
         fillId(updateStatement, updateFields.length + 1, id);
         try {
-            if (updateStatement.executeUpdate() < 1)
-                throw new BadRequestException("Updating nonexistent entry in " + tableName + ", " + id);
+            if (updateStatement.executeUpdate() < 1) {
+                throw new BadRequestException(
+                    "Updating nonexistent entry in " + tableName + ", " + id);
+            }
         } catch (SQLException e) {
-            checkConstraintError(e, "Constraint failure when updating " + id + " to " + model + " in " + tableName + " table: " + e.getMessage());
-            throw new BadRequestException("Failed to update " + id + " to " + model + " in " + tableName + " table: " + e.getMessage(), e);
+            checkConstraintError(e,
+                "Constraint failure when updating " + id + " to " + model
+                    + " in " + tableName + " table: " + e.getMessage());
+            throw new BadRequestException(
+                "Failed to update " + id + " to " + model + " in " + tableName
+                    + " table: " + e.getMessage(), e);
         }
     }
 
     public void delete(int id) {
         fillId(deleteStatement, 1, id);
         try {
-            if (deleteStatement.executeUpdate() < 1)
-                throw new BadRequestException("Deleting nonexistent entry in " + tableName + ", " + id);
+            if (deleteStatement.executeUpdate() < 1) {
+                throw new BadRequestException(
+                    "Deleting nonexistent entry in " + tableName + ", " + id);
+            }
         } catch (SQLException e) {
-            throw new BadRequestException("Failed to delete " + id + " in " + tableName + " table: " + e.getMessage(), e);
+            throw new BadRequestException(
+                "Failed to delete " + id + " in " + tableName + " table: "
+                    + e.getMessage(), e);
         }
     }
 
     @SafeVarargs
     public final List<Model> findAll(ModelCriterion... criteria) {
-        String filteringPart = Arrays.stream(criteria).map(Criterion::getSql).collect(Collectors.joining(" AND "));
-        String query = "SELECT * FROM " + tableName + (filteringPart.isEmpty() ? ";" : " WHERE " + filteringPart + ";");
+        String filteringPart = Arrays.stream(criteria).map(Criterion::getSql)
+            .collect(Collectors.joining(" AND "));
+        String query =
+            "SELECT * FROM " + tableName + (filteringPart.isEmpty() ? ";"
+                : " WHERE " + filteringPart + ";");
         PreparedStatement statement;
         try {
             statement = connection.prepareStatement(query);
-            Object[] values = Arrays.stream(criteria).flatMap(criterion -> Arrays.stream(criterion.getValues())).toArray();
-            for (int i = 0; i < values.length; i++) statement.setObject(i + 1, values[i]);
+            Object[] values = Arrays.stream(criteria)
+                .flatMap(criterion -> Arrays.stream(criterion.getValues()))
+                .toArray();
+            for (int i = 0; i < values.length; i++) {
+                statement.setObject(i + 1, values[i]);
+            }
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not initiate find all " + tableName + " query", e);
+            throw new DatabaseFailureException(
+                "Could not initiate find all " + tableName + " query", e);
         }
         List<Model> result = executeFindAll(statement);
         try {
             statement.close();
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not close find all " + tableName + " statement");
+            throw new DatabaseFailureException(
+                "Could not close find all " + tableName + " statement");
         }
         return result;
     }
@@ -166,12 +212,15 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         List<Model> list = new ArrayList<>();
         try {
             ResultSet set = statement.executeQuery();
-            while (set.next()) list.add(getModel(set));
+            while (set.next()) {
+                list.add(getModel(set));
+            }
             set.close();
             return list;
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DatabaseFailureException("Could not execute find all " + tableName + " query", e);
+            throw new DatabaseFailureException(
+                "Could not execute find all " + tableName + " query", e);
         }
     }
 
@@ -181,7 +230,8 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         try {
             statement.setObject(index, id);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not insert primary key into statement", e);
+            throw new DatabaseFailureException(
+                "Could not insert primary key into statement", e);
         }
     }
 
@@ -192,33 +242,40 @@ public abstract class Service<Model, ModelCriterion extends Criterion> implement
         try {
             return getModelUnsafe(set);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Unexpected result set parsing error", e);
+            throw new DatabaseFailureException(
+                "Unexpected result set parsing error", e);
         }
     }
 
-    protected abstract void fillCreateParamsUnsafe(Model model, PreparedStatement statement) throws SQLException;
+    protected abstract void fillCreateParamsUnsafe(Model model,
+        PreparedStatement statement) throws SQLException;
 
     private void fillCreateParams(Model model, PreparedStatement statement) {
         try {
             fillCreateParamsUnsafe(model, statement);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Unexpected create statement fill error", e);
+            throw new DatabaseFailureException(
+                "Unexpected create statement fill error", e);
         }
     }
 
-    protected abstract void fillUpdateParamsUnsafe(Model model, PreparedStatement statement) throws SQLException;
+    protected abstract void fillUpdateParamsUnsafe(Model model,
+        PreparedStatement statement) throws SQLException;
 
     private void fillUpdateParams(Model model, PreparedStatement statement) {
         try {
             fillUpdateParamsUnsafe(model, statement);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Unexpected update statement fill error", e);
+            throw new DatabaseFailureException(
+                "Unexpected update statement fill error", e);
         }
     }
 
     @Override
     public void close() throws Exception {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         insertStatement.close();
         updateStatement.close();
         deleteStatement.close();

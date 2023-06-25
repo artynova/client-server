@@ -1,7 +1,6 @@
 package com.nova.cls.data;
 
 import com.nova.cls.network.packets.Message;
-import com.nova.cls.network.packets.Packet;
 
 public class FakeProcessor {
     public Message process(Message request) {

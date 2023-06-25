@@ -55,11 +55,9 @@ public class Group {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Group {");
-        sb.append("groupId=").append(getGroupId());
-        sb.append(", groupName='").append(getGroupName()).append('\'');
-        sb.append(", description='").append(getDescription()).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Group {" + "groupId=" + getGroupId()
+            + ", groupName='" + getGroupName() + '\''
+            + ", description='" + getDescription() + '\''
+            + '}';
     }
 }

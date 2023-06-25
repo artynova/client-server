@@ -4,9 +4,6 @@ public class OffsetGoodQuantity {
     private int goodId;
     private int offset;
 
-    public OffsetGoodQuantity() {
-    }
-
     public int getGoodId() {
         return goodId;
     }

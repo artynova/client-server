@@ -14,7 +14,8 @@ public class Good {
     public Good() {
     }
 
-    public Good(int goodId, String goodName, String description, String manufacturer, int quantity, int price, int groupId) {
+    public Good(int goodId, String goodName, String description,
+        String manufacturer, int quantity, int price, int groupId) {
         this.goodId = goodId;
         this.goodName = goodName;
         this.description = description;
@@ -82,28 +83,36 @@ public class Good {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Good good = (Good) o;
-        return getQuantity() == good.getQuantity() && getPrice() == good.getPrice() && Objects.equals(getGoodName(), good.getGoodName()) && Objects.equals(getDescription(), good.getDescription()) && Objects.equals(getManufacturer(), good.getManufacturer()) && Objects.equals(getGoodId(), good.getGroupId());
+        return getQuantity() == good.getQuantity()
+            && getPrice() == good.getPrice() && Objects.equals(getGoodName(),
+            good.getGoodName()) && Objects.equals(getDescription(),
+            good.getDescription()) && Objects.equals(getManufacturer(),
+            good.getManufacturer()) && Objects.equals(getGoodId(),
+            good.getGroupId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getGoodName(), getDescription(), getManufacturer(), getQuantity(), getPrice(), getGoodId());
+        return Objects.hash(getGoodName(), getDescription(), getManufacturer(),
+            getQuantity(), getPrice(), getGoodId());
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Good {");
-        sb.append("goodId=").append(getGoodId());
-        sb.append(", goodName='").append(getGoodName()).append('\'');
-        sb.append(", description='").append(getDescription()).append('\'');
-        sb.append(", manufacturer='").append(getManufacturer()).append('\'');
-        sb.append(", quantity=").append(getQuantity());
-        sb.append(", price=").append(getPrice());
-        sb.append(", groupId='").append(getGroupId()).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Good {" + "goodId=" + getGoodId()
+            + ", goodName='" + getGoodName() + '\''
+            + ", description='" + getDescription() + '\''
+            + ", manufacturer='" + getManufacturer() + '\''
+            + ", quantity=" + getQuantity()
+            + ", price=" + getPrice()
+            + ", groupId='" + getGroupId() + '\''
+            + '}';
     }
 }

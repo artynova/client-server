@@ -13,8 +13,11 @@ import java.util.Arrays;
 public class GoodsService extends Service<Good, GoodsCriterion> {
     private static final String TABLE_NAME = "Goods";
     private static final String ID_NAME = "goodId";
-    private static final String[] CREATE_FIELDS = new String[]{"goodName", "description", "manufacturer", "price", "groupId"};
-    private static final String[] UPDATE_FIELDS = Arrays.copyOf(CREATE_FIELDS, 4);
+    private static final String[] CREATE_FIELDS =
+        new String[] {"goodName", "description", "manufacturer", "price",
+            "groupId"};
+    private static final String[] UPDATE_FIELDS =
+        Arrays.copyOf(CREATE_FIELDS, 4);
 
 
     private final PreparedStatement offsetQuantityStatement;
@@ -25,11 +28,13 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
     }
 
     private PreparedStatement initOffsetQuantityStatement() {
-        String query = "UPDATE Goods SET quantity = quantity + ? WHERE goodId = ?;";
+        String query =
+            "UPDATE Goods SET quantity = quantity + ? WHERE goodId = ?;";
         try {
             return connection.prepareStatement(query);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Could not initialize offset quantity of Goods statement", e);
+            throw new DatabaseFailureException(
+                "Could not initialize offset quantity of Goods statement", e);
         }
     }
 
@@ -46,15 +51,23 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
             offsetQuantityStatement.setObject(1, offsetQuantity);
             offsetQuantityStatement.setObject(2, goodId);
         } catch (SQLException e) {
-            throw new DatabaseFailureException("Unexpected offset quantity statement fill error", e);
+            throw new DatabaseFailureException(
+                "Unexpected offset quantity statement fill error", e);
         }
         try {
-            if (offsetQuantityStatement.executeUpdate() < 1)
-                throw new BadRequestException("Offsetting quantity of nonexistent entity " + goodId + " in Goods table");
+            if (offsetQuantityStatement.executeUpdate() < 1) {
+                throw new BadRequestException(
+                    "Offsetting quantity of nonexistent entity " + goodId
+                        + " in Goods table");
+            }
         } catch (SQLException e) {
-            if (e.getErrorCode() == DatabaseHandler.CONSTRAINT_ERROR_CODE)
-                throw new BadRequestException("Constraint failure when offsetting quantity of entity " + goodId + " in Goods table: " + e.getMessage(), e);
-            throw new DatabaseFailureException("Could not execute offset quantity query", e);
+            if (e.getErrorCode() == DatabaseHandler.CONSTRAINT_ERROR_CODE) {
+                throw new BadRequestException(
+                    "Constraint failure when offsetting quantity of entity "
+                        + goodId + " in Goods table: " + e.getMessage(), e);
+            }
+            throw new DatabaseFailureException(
+                "Could not execute offset quantity query", e);
         }
     }
 
@@ -72,13 +85,15 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
     }
 
     @Override
-    protected void fillCreateParamsUnsafe(Good good, PreparedStatement statement) throws SQLException {
+    protected void fillCreateParamsUnsafe(Good good,
+        PreparedStatement statement) throws SQLException {
         fillUpdateParamsUnsafe(good, statement);
         statement.setObject(5, good.getGroupId());
     }
 
     @Override
-    protected void fillUpdateParamsUnsafe(Good good, PreparedStatement statement) throws SQLException {
+    protected void fillUpdateParamsUnsafe(Good good,
+        PreparedStatement statement) throws SQLException {
         statement.setObject(1, good.getGoodName());
         statement.setObject(2, good.getDescription());
         statement.setObject(3, good.getManufacturer());
@@ -92,7 +107,9 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
 
     @Override
     public void close() throws Exception {
-        if (isClosed()) return;
+        if (isClosed()) {
+            return;
+        }
         super.close();
         offsetQuantityStatement.close();
     }

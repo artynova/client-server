@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 
 public class TestRequestProcessing {
@@ -34,11 +35,14 @@ public class TestRequestProcessing {
         FakeReceiver.setVerbose(VERBOSE);
         FakeSender.setVerbose(VERBOSE);
 
-        BatchRequestHandler handler = new BatchRequestHandler(MAX_HANDLER_THREADS, HANDLER_BATCH_SIZE, HANDLER_INTERVAL_MILLIS);
+        BatchRequestHandler handler =
+            new BatchRequestHandler(MAX_HANDLER_THREADS, HANDLER_BATCH_SIZE,
+                HANDLER_INTERVAL_MILLIS);
         ExecutorService pool = Executors.newFixedThreadPool(TESTING_THREADS);
         List<Future<Void>> results = new ArrayList<>(TESTING_THREADS);
-        for (int i = 0; i < TESTING_THREADS; i++)
+        for (int i = 0; i < TESTING_THREADS; i++) {
             results.add(pool.submit(() -> executeThreadTest(handler)));
+        }
         for (int i = 0; i < TESTING_THREADS; i++) {
             try {
                 results.get(i).get();
@@ -52,20 +56,24 @@ public class TestRequestProcessing {
         handler.close();
     }
 
-    private Void executeThreadTest(BatchRequestHandler handler) throws Exception {
+    private Void executeThreadTest(BatchRequestHandler handler)
+        throws Exception {
         FakeReceiver receiver = new FakeReceiver(handler);
         List<FakeRequestTask> tasks = new ArrayList<>(PACKETS_PER_THREAD);
         // schedule all tasks
         for (int i = 0; i < PACKETS_PER_THREAD; i++) {
             receiver.receivePacket();
             FakeRequestTask task = receiver.getLastTask();
-            if (task == null) fail("Request unexpectedly dropped due to congestion");
+            assertNotEquals("Request unexpectedly dropped due to congestion",
+                null, task);
             tasks.add(task);
         }
         // get results from all handlers
         for (FakeRequestTask task : tasks) {
             synchronized (task.getLock()) {
-                while (!task.isDone()) task.getLock().wait();
+                while (!task.isDone()) {
+                    task.getLock().wait();
+                }
             }
             compareRequestResponse(task.getRequest(), task.getResponse());
         }
@@ -73,7 +81,7 @@ public class TestRequestProcessing {
     }
 
     private void compareRequestResponse(Packet request, Packet response) {
-        if (response == null) fail("Unexpected request processing failure, no response was sent");
+        assertNotEquals("Unexpected request processing failure, no response was sent", null, response);
         assertEquals(request.getSource(), response.getSource());
         assertEquals(request.getPacketId(), response.getPacketId());
         Message requestMessage = request.getMessage();

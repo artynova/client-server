@@ -6,7 +6,7 @@ import com.nova.cls.data.services.criteria.Criterion;
  * Intermediate marker class.
  */
 public abstract class GroupsCriterion extends Criterion {
-    public GroupsCriterion(String sql, Object... values) {
+    protected GroupsCriterion(String sql, Object... values) {
         super(sql, values);
     }
 }
