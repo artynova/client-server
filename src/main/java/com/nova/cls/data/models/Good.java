@@ -3,19 +3,19 @@ package com.nova.cls.data.models;
 import java.util.Objects;
 
 public class Good {
-    private int goodId;
+    private long goodId;
     private String goodName;
     private String description;
     private String manufacturer;
-    private int quantity;
-    private int price; // in kopiykas
-    private int groupId;
+    private long quantity;
+    private long price; // in kopiykas
+    private long groupId;
 
     public Good() {
     }
 
-    public Good(int goodId, String goodName, String description,
-        String manufacturer, int quantity, int price, int groupId) {
+    public Good(long goodId, String goodName, String description,
+        String manufacturer, long quantity, long price, long groupId) {
         this.goodId = goodId;
         this.goodName = goodName;
         this.description = description;
@@ -25,11 +25,11 @@ public class Good {
         this.groupId = groupId;
     }
 
-    public int getGoodId() {
+    public long getGoodId() {
         return goodId;
     }
 
-    public void setGoodId(int goodId) {
+    public void setGoodId(long goodId) {
         this.goodId = goodId;
     }
 
@@ -57,27 +57,27 @@ public class Good {
         this.manufacturer = manufacturer;
     }
 
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
 
-    public int getPrice() {
+    public long getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 
-    public int getGroupId() {
+    public long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(int groupId) {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 
@@ -90,29 +90,27 @@ public class Good {
             return false;
         }
         Good good = (Good) o;
-        return getQuantity() == good.getQuantity()
-            && getPrice() == good.getPrice() && Objects.equals(getGoodName(),
-            good.getGoodName()) && Objects.equals(getDescription(),
-            good.getDescription()) && Objects.equals(getManufacturer(),
-            good.getManufacturer()) && Objects.equals(getGoodId(),
-            good.getGroupId());
+        return Objects.equals(getGoodId(), good.getGoodId())
+            && Objects.equals(getGoodName(), good.getGoodName())
+            && Objects.equals(getDescription(), good.getDescription())
+            && Objects.equals(getManufacturer(), good.getManufacturer())
+            && Objects.equals(getQuantity(), good.getQuantity())
+            && Objects.equals(getPrice(), good.getPrice())
+            && Objects.equals(getGroupId(), good.getGroupId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getGoodName(), getDescription(), getManufacturer(),
-            getQuantity(), getPrice(), getGoodId());
+        return Objects.hash(getGoodId(), getGoodName(), getDescription(),
+            getManufacturer(), getQuantity(), getPrice(), getGroupId());
     }
 
     @Override
     public String toString() {
-        return "Good {" + "goodId=" + getGoodId()
-            + ", goodName='" + getGoodName() + '\''
-            + ", description='" + getDescription() + '\''
-            + ", manufacturer='" + getManufacturer() + '\''
-            + ", quantity=" + getQuantity()
-            + ", price=" + getPrice()
-            + ", groupId='" + getGroupId() + '\''
-            + '}';
+        return "Good {" + "goodId=" + getGoodId() + ", goodName='"
+            + getGoodName() + '\'' + ", description='" + getDescription() + '\''
+            + ", manufacturer='" + getManufacturer() + '\'' + ", quantity="
+            + getQuantity() + ", price=" + getPrice() + ", groupId='"
+            + getGroupId() + '\'' + '}';
     }
 }

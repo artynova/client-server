@@ -1,22 +1,30 @@
 package com.nova.cls.data.models;
 
 public class OffsetGoodQuantity {
-    private int goodId;
-    private int offset;
+    private long goodId;
+    private long offset;
 
-    public int getGoodId() {
+    public OffsetGoodQuantity() {
+    }
+
+    public OffsetGoodQuantity(long goodId, long offset) {
+        this.goodId = goodId;
+        this.offset = offset;
+    }
+
+    public long getGoodId() {
         return goodId;
     }
 
-    public void setGoodId(int goodId) {
+    public void setGoodId(long goodId) {
         this.goodId = goodId;
     }
 
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(int offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 }

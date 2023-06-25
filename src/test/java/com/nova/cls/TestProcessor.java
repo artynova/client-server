@@ -63,35 +63,35 @@ public class TestProcessor {
         Message response = processor.process(
             new Message(Command.GROUPS_CREATE, 0,
                 mapper.writeValueAsString(vegetables)));
-        vegetables.setGroupId(Integer.parseInt(response.getBody()));
+        vegetables.setGroupId(Long.parseLong(response.getBody()));
 
         fruit = new Group();
         fruit.setGroupName("Фрукти");
         fruit.setDescription("Дуже стиглі");
         response = processor.process(new Message(Command.GROUPS_CREATE, 0,
             mapper.writeValueAsString(fruit)));
-        fruit.setGroupId(Integer.parseInt(response.getBody()));
+        fruit.setGroupId(Long.parseLong(response.getBody()));
 
 
         carrot = new Good();
         carrot.setGoodName("Морква");
         carrot.setDescription("Якісна");
         carrot.setManufacturer("Дідусів город");
-        carrot.setPrice(5000);
+        carrot.setPrice(5000L);
         carrot.setGroupId(vegetables.getGroupId());
         response = processor.process(new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(carrot)));
-        carrot.setGoodId(Integer.parseInt(response.getBody()));
+        carrot.setGoodId(Long.parseLong(response.getBody()));
 
         apple = new Good();
         apple.setGoodName("Яблуко");
         apple.setDescription("Голден");
         apple.setManufacturer("Дідусів сад");
-        apple.setPrice(4500);
+        apple.setPrice(4500L);
         apple.setGroupId(fruit.getGroupId());
         response = processor.process(new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(apple)));
-        apple.setGoodId(Integer.parseInt(response.getBody()));
+        apple.setGoodId(Long.parseLong(response.getBody()));
     }
 
     // delete example groups, and the contained goods along with them
@@ -116,8 +116,7 @@ public class TestProcessor {
         // invalid body
         assertBadRequest(new Message(Command.GROUPS_READ, 0, "Abracadabra"));
         // nonexistent group
-        assertBadRequest(
-            new Message(Command.GROUPS_READ, 0, 30));
+        assertBadRequest(new Message(Command.GROUPS_READ, 0, 30));
 
         request = new Message(Command.GOODS_READ, 0, carrot.getGoodId());
         response = processor.process(request);
@@ -127,8 +126,7 @@ public class TestProcessor {
         // invalid body
         assertBadRequest(new Message(Command.GOODS_READ, 0, "Abracadabra"));
         // nonexistent good
-        assertBadRequest(
-            new Message(Command.GOODS_READ, 0, 30));
+        assertBadRequest(new Message(Command.GOODS_READ, 0, 30));
     }
 
     @Test
@@ -160,11 +158,10 @@ public class TestProcessor {
             mapper.writeValueAsString(meat));
         Message response = processor.process(request);
         assertEquals(Response.OK, Response.get(response.getMessageType()));
-        int meatId = Integer.parseInt(response.getBody());
-        meat.setGroupId(meatId);
+        meat.setGroupId(Long.parseLong(response.getBody()));
 
         // meat exists
-        request = new Message(Command.GROUPS_READ, 0, meatId);
+        request = new Message(Command.GROUPS_READ, 0, meat.getGroupId());
         response = processor.process(request);
         assertEquals(mapper.writeValueAsString(meat), response.getBody());
 
@@ -177,8 +174,8 @@ public class TestProcessor {
         // bad (null) name
         chicken.setDescription("Сира");
         chicken.setManufacturer("Наша Ряба");
-        chicken.setPrice(5000);
-        chicken.setGroupId(meatId);
+        chicken.setPrice(5000L);
+        chicken.setGroupId(meat.getGroupId());
         chicken.setGoodName(null);
         assertBadRequest(new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(chicken)));
@@ -198,33 +195,33 @@ public class TestProcessor {
             mapper.writeValueAsString(chicken)));
         chicken.setManufacturer("Наша Ряба");
         // bad (negative) price
-        chicken.setPrice(-155);
+        chicken.setPrice(-155L);
         assertBadRequest(new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(chicken)));
-        chicken.setPrice(5000);
+        chicken.setPrice(5000L);
         // bad (nonexistent) group
-        chicken.setGroupId(30);
+        chicken.setGroupId(30L);
         assertBadRequest(new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(chicken)));
-        chicken.setGroupId(meatId);
+        chicken.setGroupId(meat.getGroupId());
 
         // success
         request = new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(chicken));
         response = processor.process(request);
         assertEquals(Response.OK, Response.get(response.getMessageType()));
-        int chickenId = Integer.parseInt(response.getBody());
-        chicken.setGoodId(chickenId);
+        chicken.setGoodId(Long.parseLong(response.getBody()));
 
         // chicken exists
         request = new Message(Command.GOODS_READ, 0,
-            chickenId); // test that actually created
+            chicken.getGoodId()); // test that actually created
         response = processor.process(request);
         assertEquals(mapper.writeValueAsString(chicken), response.getBody());
 
         // clean up meat (and chicken)
         processor.process(
-            new Message(Command.GROUPS_DELETE, 0, meatId)); // cleanup
+            new Message(Command.GROUPS_DELETE, 0,
+                meat.getGroupId())); // cleanup
     }
 
     @Test
@@ -295,13 +292,13 @@ public class TestProcessor {
             mapper.writeValueAsString(carrot)));
         carrot.setManufacturer("Садочок");
         // bad (non-positive) price
-        carrot.setPrice(0);
+        carrot.setPrice(0L);
         assertBadRequest(new Message(Command.GOODS_UPDATE, 0,
             mapper.writeValueAsString(carrot)));
-        carrot.setPrice(6050);
+        carrot.setPrice(6050L);
 
         // success
-        carrot.setQuantity(5555); // should not affect the carrot because
+        carrot.setQuantity(5555L); // should not affect the carrot because
         // quantity is updated separately
         carrot.setGroupId(fruit.getGroupId()); // should not affect the
         // carrot because group of a good does not change
@@ -315,14 +312,12 @@ public class TestProcessor {
             new Message(Command.GOODS_READ, 0, carrot.getGoodId()));
         assertNotEquals(mapper.writeValueAsString(carrot),
             response.getBody()); // reasons for inequality are outlined above
-        assertEquals(0, mapper.readValue(response.getBody(), Good.class)
-            .getQuantity());
+        assertEquals(0L,
+            mapper.readValue(response.getBody(), Good.class).getQuantity());
         assertEquals(vegetables.getGroupId(),
-            mapper.readValue(response.getBody(),
-                    Good.class)
-                .getGroupId());
+            mapper.readValue(response.getBody(), Good.class).getGroupId());
 
-        carrot.setQuantity(0);
+        carrot.setQuantity(0L);
         carrot.setGroupId(vegetables.getGroupId());
         assertEquals(mapper.writeValueAsString(carrot), response.getBody());
 
@@ -336,8 +331,8 @@ public class TestProcessor {
         assertEquals(Response.OK, Response.get(response.getMessageType()));
 
         // verify addition
-        response = processor.process(new Message(Command.GOODS_READ, 0,
-            carrot.getGoodId()));
+        response = processor.process(
+            new Message(Command.GOODS_READ, 0, carrot.getGoodId()));
         assertEquals(10,
             mapper.readValue(response.getBody(), Good.class).getQuantity());
 
@@ -348,8 +343,8 @@ public class TestProcessor {
         assertEquals(Response.OK, Response.get(response.getMessageType()));
 
         // verify subtraction
-        response = processor.process(new Message(Command.GOODS_READ, 0,
-            carrot.getGoodId()));
+        response = processor.process(
+            new Message(Command.GOODS_READ, 0, carrot.getGoodId()));
         assertEquals(0,
             mapper.readValue(response.getBody(), Good.class).getQuantity());
 
@@ -439,8 +434,7 @@ public class TestProcessor {
         tomato.setGroupId(vegetables.getGroupId());
         response = processor.process(new Message(Command.GOODS_CREATE, 0,
             mapper.writeValueAsString(tomato)));
-        int tomatoId = Integer.parseInt(response.getBody());
-        tomato.setGoodId(tomatoId);
+        tomato.setGoodId(Long.parseLong(response.getBody()));
 
         assertBadRequest(new Message(Command.GOODS_LIST, 0, "abracadabra"));
 
@@ -457,7 +451,7 @@ public class TestProcessor {
         // get goods with given group and max price
         goodsCriteriaAggregate =
             new GoodsCriteriaAggregate(vegetables.getGroupId(), null, null,
-                2500, null, null);
+                2500L, null, null);
         request = new Message(Command.GOODS_LIST, 0,
             mapper.writeValueAsString(goodsCriteriaAggregate));
         response = processor.process(request);
@@ -467,7 +461,7 @@ public class TestProcessor {
         // get goods with given group, max price and min quantity
         goodsCriteriaAggregate =
             new GoodsCriteriaAggregate(vegetables.getGroupId(), null, null,
-                2500, 5, null);
+                2500L, 5L, null);
         request = new Message(Command.GOODS_LIST, 0,
             mapper.writeValueAsString(goodsCriteriaAggregate));
         response = processor.process(request);
@@ -476,8 +470,8 @@ public class TestProcessor {
 
         // get goods with given group, min price and min quantity
         goodsCriteriaAggregate =
-            new GoodsCriteriaAggregate(vegetables.getGroupId(), null, 2000,
-                null, 5, null);
+            new GoodsCriteriaAggregate(vegetables.getGroupId(), null, 2000L,
+                null, 5L, null);
         request = new Message(Command.GOODS_LIST, 0,
             mapper.writeValueAsString(goodsCriteriaAggregate));
         response = processor.process(request);

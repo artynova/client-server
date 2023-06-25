@@ -3,24 +3,24 @@ package com.nova.cls.data.models;
 import java.util.Objects;
 
 public class Group {
-    private int groupId;
+    private long groupId;
     private String groupName;
     private String description;
 
     public Group() {
     }
 
-    public Group(int groupId, String groupName, String description) {
+    public Group(long groupId, String groupName, String description) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.description = description;
     }
 
-    public int getGroupId() {
+    public long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(int groupId) {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 
@@ -42,10 +42,16 @@ public class Group {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Group group = (Group) o;
-        return Objects.equals(getGroupName(), group.getGroupName()) && Objects.equals(getDescription(), group.getDescription());
+        return Objects.equals(getGroupId(), group.getGroupId())
+            && Objects.equals(getGroupName(), group.getGroupName())
+            && Objects.equals(getDescription(), group.getDescription());
     }
 
     @Override

@@ -38,15 +38,15 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
         }
     }
 
-    public void addQuantity(int goodId, int addedQuantity) {
+    public void addQuantity(long goodId, long addedQuantity) {
         offsetQuantity(goodId, addedQuantity);
     }
 
-    public void subtractQuantity(int goodId, int subtractedQuantity) {
+    public void subtractQuantity(long goodId, long subtractedQuantity) {
         offsetQuantity(goodId, -subtractedQuantity);
     }
 
-    private void offsetQuantity(int goodId, int offsetQuantity) {
+    private void offsetQuantity(long goodId, long offsetQuantity) {
         try {
             offsetQuantityStatement.setObject(1, offsetQuantity);
             offsetQuantityStatement.setObject(2, goodId);
@@ -74,13 +74,13 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
     @Override
     protected Good getModelUnsafe(ResultSet set) throws SQLException {
         Good good = new Good();
-        good.setGoodId(set.getInt("goodId"));
+        good.setGoodId(set.getLong("goodId"));
         good.setGoodName(set.getString("goodName"));
         good.setDescription(set.getString("description"));
         good.setManufacturer(set.getString("manufacturer"));
-        good.setQuantity(set.getInt("quantity"));
-        good.setPrice(set.getInt("price"));
-        good.setGroupId(set.getInt("groupId"));
+        good.setQuantity(set.getLong("quantity"));
+        good.setPrice(set.getLong("price"));
+        good.setGroupId(set.getLong("groupId"));
         return good;
     }
 
@@ -101,7 +101,7 @@ public class GoodsService extends Service<Good, GoodsCriterion> {
     }
 
     @Override
-    protected int getId(Good good) {
+    protected long getId(Good good) {
         return good.getGoodId();
     }
 

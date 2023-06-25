@@ -24,7 +24,7 @@ public class GroupsService extends Service<Group, GroupsCriterion> {
     @Override
     protected Group getModelUnsafe(ResultSet set) throws SQLException {
         Group group = new Group();
-        group.setGroupId(set.getInt(ID_NAME));
+        group.setGroupId(set.getLong(ID_NAME));
         group.setGroupName(set.getString("groupName"));
         group.setDescription(set.getString("description"));
         return group;
@@ -44,7 +44,7 @@ public class GroupsService extends Service<Group, GroupsCriterion> {
     }
 
     @Override
-    protected int getId(Group group) {
+    protected long getId(Group group) {
         return group.getGroupId();
     }
 }

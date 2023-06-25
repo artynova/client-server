@@ -147,7 +147,7 @@ public abstract class Service<Model, ModelCriterion extends Criterion>
      */
     public void update(Model model) {
         fillUpdateParams(model, updateStatement);
-        int id = getId(model);
+        long id = getId(model);
         fillId(updateStatement, updateFields.length + 1, id);
         try {
             if (updateStatement.executeUpdate() < 1) {
@@ -224,9 +224,9 @@ public abstract class Service<Model, ModelCriterion extends Criterion>
         }
     }
 
-    protected abstract int getId(Model model);
+    protected abstract long getId(Model model);
 
-    private void fillId(PreparedStatement statement, int index, int id) {
+    private void fillId(PreparedStatement statement, int index, long id) {
         try {
             statement.setObject(index, id);
         } catch (SQLException e) {
