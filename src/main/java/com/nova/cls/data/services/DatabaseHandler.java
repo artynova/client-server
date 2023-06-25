@@ -26,7 +26,7 @@ public class DatabaseHandler {
             description TEXT NOT NULL,
             manufacturer TEXT NOT NULL,
             quantity INTEGER NOT NULL DEFAULT 0 CHECK (quantity >= 0),
-            price INTEGER NOT NULL CHECK (price >= 0),
+            price INTEGER NOT NULL CHECK (price > 0),
             groupId INTEGER NOT NULL,
             FOREIGN KEY (groupId) REFERENCES Groups(groupId)
                 ON UPDATE CASCADE

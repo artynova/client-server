@@ -5,7 +5,7 @@ public class HasGoodsCriterion extends GroupsCriterion {
         ? = (EXISTS (
             SELECT *
             FROM Goods
-            WHERE Goods.groupId = groupId
+            WHERE Goods.groupId = Groups.groupId
         ))""";
 
     public HasGoodsCriterion(boolean hasGoods) {
