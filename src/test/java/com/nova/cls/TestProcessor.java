@@ -33,7 +33,7 @@ public class TestProcessor {
     private final GroupsJsonMapper groupsMapper = new GroupsJsonMapper();
     private final GoodsJsonMapper goodsMapper = new GoodsJsonMapper();
     private Group vegetables, fruit;
-    private Good carrot, apple;
+    private Good carrot, mango;
 
     // connect to a db in a temporary test database file
     @BeforeClass
@@ -83,14 +83,14 @@ public class TestProcessor {
         response = processor.process(new Message(Command.GOODS_CREATE, 0, goodsMapper.toCreateJson(carrot)));
         carrot.setGoodId(Long.parseLong(response.getBody()));
 
-        apple = new Good();
-        apple.setGoodName("Яблуко");
-        apple.setDescription("Голден");
-        apple.setManufacturer("Дідусів сад");
-        apple.setPrice(4500L);
-        apple.setGroupId(fruit.getGroupId());
-        response = processor.process(new Message(Command.GOODS_CREATE, 0, goodsMapper.toCreateJson(apple)));
-        apple.setGoodId(Long.parseLong(response.getBody()));
+        mango = new Good();
+        mango.setGoodName("Манго");
+        mango.setDescription("Смак тропіків");
+        mango.setManufacturer("Не дідусів сад");
+        mango.setPrice(6500L);
+        mango.setGroupId(fruit.getGroupId());
+        response = processor.process(new Message(Command.GOODS_CREATE, 0, goodsMapper.toCreateJson(mango)));
+        mango.setGoodId(Long.parseLong(response.getBody()));
     }
 
     // delete example groups, and the contained goods along with them
@@ -171,7 +171,7 @@ public class TestProcessor {
         chicken.setGoodName(null);
         assertBadRequest(new Message(Command.GOODS_CREATE, 0, goodsMapper.toCreateJson(chicken)));
         // bad (null) name
-        chicken.setGoodName("Яблуко");
+        chicken.setGoodName("Манго");
         assertBadRequest(new Message(Command.GOODS_CREATE, 0, goodsMapper.toCreateJson(chicken)));
         chicken.setGoodName("Курка");
         // bad (null) description
@@ -252,7 +252,7 @@ public class TestProcessor {
         carrot.setGoodName(null);
         assertBadRequest(new Message(Command.GOODS_UPDATE, 0, goodsMapper.toUpdateJson(carrot)));
         // bad (duplicate) name
-        carrot.setGoodName("Яблуко");
+        carrot.setGoodName("Манго");
         assertBadRequest(new Message(Command.GOODS_UPDATE, 0, goodsMapper.toUpdateJson(carrot)));
         carrot.setGoodName("Вже не морква");
         // bad (null) description
@@ -386,32 +386,52 @@ public class TestProcessor {
 
         // get goods with given group and manufacturer
         GoodsCriteriaAggregate goodsCriteriaAggregate =
-            new GoodsCriteriaAggregate(vegetables.getGroupId(), "Дідусів город", null, null, null, null);
+            new GoodsCriteriaAggregate(vegetables.getGroupId(), "Дідусів город", null, null, null, null, null);
         request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
         response = processor.process(request);
         assertEquals(List.of(carrot),
             goodsMapper.fromReadManyJson(response.getBody())); // only carrot is from Дідусів город
 
         // get goods with given group and max price
-        goodsCriteriaAggregate = new GoodsCriteriaAggregate(vegetables.getGroupId(), null, null, 2500L, null, null);
+        goodsCriteriaAggregate =
+            new GoodsCriteriaAggregate(vegetables.getGroupId(), null, null, 2500L, null, null, null);
         request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
         response = processor.process(request);
         assertEquals(List.of(tomato),
             goodsMapper.fromReadManyJson(response.getBody())); // carrot is 5000 kop, tomato is 2000 kop
 
         // get goods with given group, max price and min quantity
-        goodsCriteriaAggregate = new GoodsCriteriaAggregate(vegetables.getGroupId(), null, null, 2500L, 5L, null);
+        goodsCriteriaAggregate = new GoodsCriteriaAggregate(vegetables.getGroupId(), null, null, 2500L, 5L, null, null);
         request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
         response = processor.process(request);
         assertEquals(List.of(), goodsMapper.fromReadManyJson(
             response.getBody())); // tomatoes are not in the list because there are none in stock, and min 5 is specified
 
         // get goods with given group, min price and min quantity
-        goodsCriteriaAggregate = new GoodsCriteriaAggregate(vegetables.getGroupId(), null, 2000L, null, 5L, null);
+        goodsCriteriaAggregate = new GoodsCriteriaAggregate(vegetables.getGroupId(), null, 2000L, null, 5L, null, null);
         request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
         response = processor.process(request);
         assertEquals(List.of(carrot), goodsMapper.fromReadManyJson(
             response.getBody())); // both items are more expensive than 2000 kop, but only carrot has more than 5 units
+
+        // goods with names starting with М
+        goodsCriteriaAggregate = new GoodsCriteriaAggregate(null, null, null, null, null, null, "М");
+        request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
+        response = processor.process(request);
+        assertEquals(List.of(carrot, mango),
+            goodsMapper.fromReadManyJson(response.getBody())); // Морква and Манго both start with М
+
+        // goods with names starting with Моркв
+        goodsCriteriaAggregate = new GoodsCriteriaAggregate(null, null, null, null, null, null, "Моркв");
+        request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
+        response = processor.process(request);
+        assertEquals(List.of(carrot), goodsMapper.fromReadManyJson(response.getBody()));
+
+        // goods with names starting with abracadabra (none)
+        goodsCriteriaAggregate = new GoodsCriteriaAggregate(null, null, null, null, null, null, "abracadabra");
+        request = new Message(Command.GOODS_LIST, 0, goodsMapper.toCriteriaJson(goodsCriteriaAggregate));
+        response = processor.process(request);
+        assertEquals(List.of(), goodsMapper.fromReadManyJson(response.getBody()));
 
         // list empty groups (this time with a non-empty resulting list)
         processor.process(new Message(Command.GOODS_DELETE, 0, carrot.getGoodId()));

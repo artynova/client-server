@@ -22,18 +22,20 @@ public final class GoodsCriteriaAggregate implements CriteriaAggregate<Good> {
     private Long maxPrice;
     private Long minQuantity;
     private Long maxQuantity;
+    private String namePrefix;
 
     public GoodsCriteriaAggregate() {
     }
 
     public GoodsCriteriaAggregate(Long groupId, String manufacturer, Long minPrice, Long maxPrice, Long minQuantity,
-        Long maxQuantity) {
+        Long maxQuantity, String namePrefix) {
         this.groupId = groupId;
         this.manufacturer = manufacturer;
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.minQuantity = minQuantity;
         this.maxQuantity = maxQuantity;
+        this.namePrefix = namePrefix;
     }
 
     public List<Criterion<Good>> criteria() {
@@ -55,6 +57,9 @@ public final class GoodsCriteriaAggregate implements CriteriaAggregate<Good> {
         }
         if (getMaxQuantity() != null) {
             list.add(new MaxQuantityCriterion(getMaxQuantity()));
+        }
+        if (getNamePrefix() != null) {
+            list.add(new NamePrefixCriterion(getNamePrefix()));
         }
         return list;
     }
@@ -107,31 +112,34 @@ public final class GoodsCriteriaAggregate implements CriteriaAggregate<Good> {
         this.maxQuantity = maxQuantity;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
-        var that = (GoodsCriteriaAggregate) obj;
-        return Objects.equals(this.groupId, that.groupId) && Objects.equals(this.manufacturer, that.manufacturer)
-            && Objects.equals(this.minPrice, that.minPrice) && Objects.equals(this.maxPrice, that.maxPrice)
-            && Objects.equals(this.minQuantity, that.minQuantity) && Objects.equals(this.maxQuantity, that.maxQuantity);
+    public String getNamePrefix() {
+        return namePrefix;
+    }
+
+    public void setNamePrefix(String namePrefix) {
+        this.namePrefix = namePrefix;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(groupId, manufacturer, minPrice, maxPrice, minQuantity, maxQuantity);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GoodsCriteriaAggregate aggregate = (GoodsCriteriaAggregate) o;
+        return Objects.equals(getGroupId(), aggregate.getGroupId()) && Objects.equals(getManufacturer(),
+            aggregate.getManufacturer()) && Objects.equals(getMinPrice(), aggregate.getMinPrice()) && Objects.equals(
+            getMaxPrice(), aggregate.getMaxPrice()) && Objects.equals(getMinQuantity(), aggregate.getMinQuantity())
+            && Objects.equals(getMaxQuantity(), aggregate.getMaxQuantity()) && Objects.equals(getNamePrefix(),
+            aggregate.getNamePrefix());
     }
 
     @Override
     public String toString() {
-        return "GoodsCriteriaAggregate[" + "groupId=" + groupId + ", " + "manufacturer=" + manufacturer + ", "
-            + "minPrice=" + minPrice + ", " + "maxPrice=" + maxPrice + ", " + "minQuantity=" + minQuantity + ", "
-            + "maxQuantity=" + maxQuantity + ']';
+        return "GoodsCriteriaAggregate{" + "groupId=" + groupId + ", manufacturer='" + manufacturer + '\''
+            + ", minPrice=" + minPrice + ", maxPrice=" + maxPrice + ", minQuantity=" + minQuantity + ", maxQuantity="
+            + maxQuantity + ", namePrefix='" + namePrefix + '\'' + ", criteria=" + criteria() + '}';
     }
-
-
 }

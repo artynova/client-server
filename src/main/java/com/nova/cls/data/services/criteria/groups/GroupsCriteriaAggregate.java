@@ -38,20 +38,15 @@ public final class GroupsCriteriaAggregate implements CriteriaAggregate<Group> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
+    public boolean equals(Object o) {
+        if (o == this) {
             return true;
         }
-        if (obj == null || obj.getClass() != this.getClass()) {
+        if (o == null || o.getClass() != this.getClass()) {
             return false;
         }
-        var that = (GroupsCriteriaAggregate) obj;
-        return Objects.equals(this.hasGoods, that.hasGoods);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(hasGoods);
+        GroupsCriteriaAggregate aggregate = (GroupsCriteriaAggregate) o;
+        return Objects.equals(getHasGoods(), aggregate.getHasGoods());
     }
 
     @Override
