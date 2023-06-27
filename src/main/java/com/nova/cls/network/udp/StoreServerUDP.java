@@ -10,7 +10,7 @@ public class StoreServerUDP extends BaseServer {
         super(new ReceiverUDP(handler));
     }
 
-    public static void main(String[] args) throws SocketException {
+    public static void main(String[] args) {
         StoreServerUDP server = new StoreServerUDP(new BatchRequestHandler());
         server.start();
     }

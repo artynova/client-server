@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
 
 public class Group {
-    @JsonView({Views.ReadView.class, Views.UpdateView.class})
-    private long groupId;
+    @JsonView(Views.ReadView.class)
+    private Long groupId;
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String groupName;
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
@@ -15,17 +15,17 @@ public class Group {
     public Group() {
     }
 
-    public Group(long groupId, String groupName, String description) {
+    public Group(Long groupId, String groupName, String description) {
         this.groupId = groupId;
         this.groupName = groupName;
         this.description = description;
     }
 
-    public long getGroupId() {
+    public Long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(long groupId) {
+    public void setGroupId(Long groupId) {
         this.groupId = groupId;
     }
 

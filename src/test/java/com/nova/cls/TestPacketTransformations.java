@@ -19,7 +19,7 @@ public class TestPacketTransformations {
     private final Decryptor decryptor = new Decryptor();
     private final Encryptor encryptor = new Encryptor();
     private final ObjectMapper mapper = new ObjectMapper();
-    private final Group meat = new Group(1, "Meat", "Bad for the environment, hard to give up");
+    private final Group meat = new Group(1L, "Meat", "Bad for the environment, hard to give up");
     private Packet meatPacket;
 
     @Before

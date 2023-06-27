@@ -1,6 +1,7 @@
 package com.nova.cls.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nova.cls.data.exceptions.request.BadRequestException;
 import com.nova.cls.data.models.Good;
 import com.nova.cls.data.models.GoodsJsonMapper;
 import com.nova.cls.data.models.Group;

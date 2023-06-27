@@ -1,5 +1,6 @@
 package com.nova.cls.data.models;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -29,9 +30,7 @@ public abstract class ModelJsonMapper<Model> {
     private final Class<? extends CriteriaAggregate<Model>> criteriaAggregateClass;
 
     public ModelJsonMapper(Class<Model> modelClass, Class<? extends CriteriaAggregate<Model>> criteriaAggregateClass) {
-        mapper = JsonMapper.builder().disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
-            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
-            .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES).build();
+        mapper = new JsonMapper();
         this.modelClass = modelClass;
         this.criteriaAggregateClass = criteriaAggregateClass;
 

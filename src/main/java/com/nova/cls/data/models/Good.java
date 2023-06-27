@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
 
 public class Good {
-    @JsonView({Views.ReadView.class, Views.UpdateView.class})
-    private long goodId;
+    @JsonView(Views.ReadView.class)
+    private Long goodId;
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String goodName;
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
@@ -14,17 +14,17 @@ public class Good {
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
     private String manufacturer;
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
-    private long quantity;
+    private Long quantity;
     @JsonView({Views.ReadView.class, Views.CreateView.class, Views.UpdateView.class})
-    private long price; // in kopiykas
+    private Long price; // in kopiykas
     @JsonView({Views.ReadView.class, Views.CreateView.class})
-    private long groupId;
+    private Long groupId;
 
     public Good() {
     }
 
-    public Good(long goodId, String goodName, String description, String manufacturer, long quantity, long price,
-        long groupId) {
+    public Good(Long goodId, String goodName, String description, String manufacturer, Long quantity, Long price,
+        Long groupId) {
         this.goodId = goodId;
         this.goodName = goodName;
         this.description = description;
@@ -34,11 +34,11 @@ public class Good {
         this.groupId = groupId;
     }
 
-    public long getGoodId() {
+    public Long getGoodId() {
         return goodId;
     }
 
-    public void setGoodId(long goodId) {
+    public void setGoodId(Long goodId) {
         this.goodId = goodId;
     }
 
@@ -66,27 +66,27 @@ public class Good {
         this.manufacturer = manufacturer;
     }
 
-    public long getQuantity() {
+    public Long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(long quantity) {
+    public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
 
-    public long getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
-    public long getGroupId() {
+    public Long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(long groupId) {
+    public void setGroupId(Long groupId) {
         this.groupId = groupId;
     }
 

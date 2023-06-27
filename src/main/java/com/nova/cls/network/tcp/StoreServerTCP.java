@@ -10,7 +10,7 @@ public class StoreServerTCP extends BaseServer {
         super(new ReceiverTCP(handler));
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         StoreServerTCP server = new StoreServerTCP(new BatchRequestHandler());
         server.start();
     }

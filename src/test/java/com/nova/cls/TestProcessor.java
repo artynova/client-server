@@ -38,7 +38,7 @@ public class TestProcessor {
     // connect to a db in a temporary test database file
     @BeforeClass
     public static void setUpClass() {
-        DatabaseHandler.setDbFileUrl("jdbc:sqlite:testData.db");
+        DatabaseHandler.setDbProjectPath("testData.db");
         DatabaseHandler.initDatabase();
         processor = new Processor();
     }
@@ -53,7 +53,7 @@ public class TestProcessor {
             e.printStackTrace();
         }
         Files.delete(Path.of("testData.db"));
-        DatabaseHandler.setDbFileUrl("jdbc:sqlite:data.db");
+        DatabaseHandler.setDbProjectPath("data.db");
         DatabaseHandler.initDatabase();
     }
 
@@ -282,7 +282,7 @@ public class TestProcessor {
         assertNotEquals(carrot,
             goodsMapper.fromReadJson(response.getBody())); // reasons for inequality are outlined above
         Good responseGood = goodsMapper.fromReadJson(response.getBody());
-        assertEquals(0L, responseGood.getQuantity());
+        assertEquals(0, (long) responseGood.getQuantity());
         assertEquals(vegetables.getGroupId(), responseGood.getGroupId());
 
         carrot.setQuantity(0L);
@@ -298,7 +298,7 @@ public class TestProcessor {
 
         // verify addition
         response = processor.process(new Message(Command.GOODS_READ, 0, carrot.getGoodId()));
-        assertEquals(10, goodsMapper.fromReadJson(response.getBody()).getQuantity());
+        assertEquals(10, (long) goodsMapper.fromReadJson(response.getBody()).getQuantity());
 
         // subtract 10
         response = processor.process(
@@ -307,7 +307,7 @@ public class TestProcessor {
 
         // verify subtraction
         response = processor.process(new Message(Command.GOODS_READ, 0, carrot.getGoodId()));
-        assertEquals(0, goodsMapper.fromReadJson(response.getBody()).getQuantity());
+        assertEquals(0, (long) goodsMapper.fromReadJson(response.getBody()).getQuantity());
 
         // subtract below 0
         assertBadRequest(
@@ -370,14 +370,14 @@ public class TestProcessor {
         quantity.setOffset(17);
         quantity.setGoodId(carrot.getGoodId());
         processor.process(new Message(Command.GOODS_ADD_QUANTITY, 0, goodsMapper.toOffsetQuantityJson(quantity)));
-        carrot.setQuantity(17);
+        carrot.setQuantity(17L);
 
         // add tomato
         Good tomato = new Good();
         tomato.setGoodName("Томат");
         tomato.setDescription("To-may-to to-mah-to");
         tomato.setManufacturer("Чумак");
-        tomato.setPrice(2000);
+        tomato.setPrice(2000L);
         tomato.setGroupId(vegetables.getGroupId());
         response = processor.process(new Message(Command.GOODS_CREATE, 0, goodsMapper.toCreateJson(tomato)));
         tomato.setGoodId(Long.parseLong(response.getBody()));

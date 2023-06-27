@@ -1,6 +1,6 @@
 package com.nova.cls.data.services;
 
-import com.nova.cls.data.BadRequestException;
+import com.nova.cls.data.exceptions.request.BadRequestException;
 import com.nova.cls.data.models.Good;
 
 import java.sql.Connection;
@@ -9,18 +9,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 
-public class GoodsService extends Service<Good> {
+public class GoodsService extends CrudService<Good> {
     private static final String TABLE_NAME = "Goods";
     private static final String ID_NAME = "goodId";
-    private static final String[] CREATE_FIELDS =
-        new String[] {"goodName", "description", "manufacturer", "price", "groupId"};
+    private static final String[] READ_FIELDS =
+        new String[] {"goodId", "quantity", "goodName", "description", "manufacturer", "price", "groupId"};
+    private static final String[] CREATE_FIELDS = Arrays.copyOfRange(READ_FIELDS, 2, READ_FIELDS.length);
     private static final String[] UPDATE_FIELDS = Arrays.copyOf(CREATE_FIELDS, 4);
 
 
     private final PreparedStatement offsetQuantityStatement;
 
     public GoodsService(Connection connection) {
-        super(connection, TABLE_NAME, ID_NAME, CREATE_FIELDS, UPDATE_FIELDS);
+        super(connection, TABLE_NAME, ID_NAME, CREATE_FIELDS, UPDATE_FIELDS, READ_FIELDS);
         this.offsetQuantityStatement = initOffsetQuantityStatement();
     }
 
@@ -33,15 +34,15 @@ public class GoodsService extends Service<Good> {
         }
     }
 
-    public void addQuantity(long goodId, long addedQuantity) {
+    public void addQuantity(Long goodId, Long addedQuantity) {
         offsetQuantity(goodId, addedQuantity);
     }
 
-    public void subtractQuantity(long goodId, long subtractedQuantity) {
+    public void subtractQuantity(Long goodId, Long subtractedQuantity) {
         offsetQuantity(goodId, -subtractedQuantity);
     }
 
-    private void offsetQuantity(long goodId, long offsetQuantity) {
+    private void offsetQuantity(Long goodId, Long offsetQuantity) {
         try {
             offsetQuantityStatement.setObject(1, offsetQuantity);
             offsetQuantityStatement.setObject(2, goodId);
@@ -54,7 +55,7 @@ public class GoodsService extends Service<Good> {
                     "Offsetting quantity of nonexistent entity " + goodId + " in Goods table");
             }
         } catch (SQLException e) {
-            if (e.getErrorCode() == DatabaseHandler.CONSTRAINT_ERROR_CODE) {
+            if (e.getErrorCode() == ConstraintExceptionAdapter.CONSTRAINT_ERROR_CODE) {
                 throw new BadRequestException(
                     "Constraint failure when offsetting quantity of entity " + goodId + " in Goods table: "
                         + e.getMessage(), e);
@@ -91,16 +92,16 @@ public class GoodsService extends Service<Good> {
     }
 
     @Override
-    protected long getId(Good good) {
+    protected Long getId(Good good) {
         return good.getGoodId();
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws SQLException {
         if (isClosed()) {
             return;
         }
-        super.close();
         offsetQuantityStatement.close();
+        super.close();
     }
 }
