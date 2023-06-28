@@ -1,6 +1,8 @@
 package com.nova.cls.data.models;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.nova.cls.data.Views;
+import com.nova.cls.util.StringUtils;
 
 import java.util.Objects;
 
@@ -54,8 +56,8 @@ public class User {
             return false;
         }
         User user = (User) o;
-        return getUserId() == user.getUserId() && Objects.equals(getLogin(), user.getLogin()) && Objects.equals(
-            getPasswordHash(), user.getPasswordHash());
+        return Objects.equals(getUserId(), user.getUserId()) && Objects.equals(getLogin(), user.getLogin())
+            && Objects.equals(getPasswordHash(), user.getPasswordHash());
     }
 
     @Override
@@ -65,7 +67,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", login='" + login + '\'' + ", passwordHash='" + passwordHash
-            + '\'' + '}';
+        return "User { userId = " + getUserId() + ", login = " + StringUtils.wrap(getLogin()) + ", passwordHash = "
+            + StringUtils.wrap(getPasswordHash()) + " }";
     }
 }

@@ -1,6 +1,8 @@
 package com.nova.cls.data.models;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.nova.cls.data.Views;
+import com.nova.cls.util.StringUtils;
 
 import java.util.Objects;
 
@@ -107,14 +109,19 @@ public class Good {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getGoodId(), getGoodName(), getDescription(), getManufacturer(), getQuantity(), getPrice(),
+        return Objects.hash(getGoodId(),
+            getGoodName(),
+            getDescription(),
+            getManufacturer(),
+            getQuantity(),
+            getPrice(),
             getGroupId());
     }
 
     @Override
     public String toString() {
-        return "Good {" + "goodId=" + getGoodId() + ", goodName='" + getGoodName() + '\'' + ", description='"
-            + getDescription() + '\'' + ", manufacturer='" + getManufacturer() + '\'' + ", quantity=" + getQuantity()
-            + ", price=" + getPrice() + ", groupId='" + getGroupId() + '\'' + '}';
+        return "Good { goodId = " + getGoodId() + ", goodName = " + StringUtils.wrap(getGoodName()) + ", description = "
+            + StringUtils.wrap(getDescription()) + ", manufacturer = " + StringUtils.wrap(getManufacturer())
+            + ", quantity = " + getQuantity() + ", price = " + getPrice() + ", groupId = " + getGroupId() + " }";
     }
 }

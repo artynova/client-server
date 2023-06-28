@@ -1,6 +1,7 @@
 package com.nova.cls.data.models;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.nova.cls.data.Views;
 
 @JsonView(Views.UpdateView.class)
 public class OffsetGoodQuantity {

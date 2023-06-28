@@ -1,7 +1,8 @@
 package com.nova.cls.data.services;
 
-import com.nova.cls.data.exceptions.request.BadRequestException;
 import com.nova.cls.data.models.Good;
+import com.nova.cls.exceptions.DatabaseFailureException;
+import com.nova.cls.exceptions.request.NotFoundException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,15 +35,7 @@ public class GoodsService extends CrudService<Good> {
         }
     }
 
-    public void addQuantity(Long goodId, Long addedQuantity) {
-        offsetQuantity(goodId, addedQuantity);
-    }
-
-    public void subtractQuantity(Long goodId, Long subtractedQuantity) {
-        offsetQuantity(goodId, -subtractedQuantity);
-    }
-
-    private void offsetQuantity(Long goodId, Long offsetQuantity) {
+    public void offsetQuantity(Long goodId, Long offsetQuantity) {
         try {
             offsetQuantityStatement.setObject(1, offsetQuantity);
             offsetQuantityStatement.setObject(2, goodId);
@@ -51,13 +44,15 @@ public class GoodsService extends CrudService<Good> {
         }
         try {
             if (offsetQuantityStatement.executeUpdate() < 1) {
-                throw new BadRequestException(
-                    "Offsetting quantity of nonexistent entity " + goodId + " in Goods table");
+                throw new NotFoundException("Offsetting quantity of nonexistent entity " + goodId + " in Goods table");
             }
         } catch (SQLException e) {
             if (e.getErrorCode() == ConstraintExceptionAdapter.CONSTRAINT_ERROR_CODE) {
-                throw new BadRequestException(
-                    "Constraint failure when offsetting quantity of entity " + goodId + " in Goods table: "
+                // if quantity becomes < 0 and causes this, the offset is definitely negative
+                checkConstraintError(e,
+                    "Conflict failure when offsetting quantity of good " + goodId + " by " + offsetQuantity + ": ");
+                throw new DatabaseFailureException(
+                    "Failed to offset quantity of good " + goodId + " by " + offsetQuantity + " table: "
                         + e.getMessage(), e);
             }
             throw new DatabaseFailureException("Could not execute offset quantity query", e);

@@ -1,8 +1,8 @@
 package com.nova.cls.data.services;
 
-import com.nova.cls.data.exceptions.request.ForbiddenException;
-import com.nova.cls.data.exceptions.request.NotFoundException;
-import com.nova.cls.data.exceptions.request.UnauthorizedException;
+import com.nova.cls.exceptions.request.ForbiddenException;
+import com.nova.cls.exceptions.request.NotFoundException;
+import com.nova.cls.exceptions.request.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -26,10 +26,17 @@ public class AuthService implements AutoCloseable {
     public String generateJwtToken(String login) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + TOKEN_LIFETIME_MILLIS);
-        return Jwts.builder().setSubject(login).setExpiration(expiration).signWith(KEY, SignatureAlgorithm.HS512)
+        return Jwts.builder()
+            .setSubject(login)
+            .setExpiration(expiration)
+            .signWith(KEY, SignatureAlgorithm.HS512)
             .compact();
     }
 
+    /**
+     * @param token JWT signed token.
+     * @return Associated login.
+     */
     public String validateJwtToken(String token) {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token).getBody();

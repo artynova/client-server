@@ -1,5 +1,7 @@
 package com.nova.cls.data.services;
 
+import com.nova.cls.util.StringUtils;
+
 import java.sql.SQLException;
 
 /**
@@ -18,12 +20,12 @@ public class ConstraintExceptionAdapter {
             // initially it comes as TableName.fieldName, extracting fieldName
             String column = getProblem(message, "UNIQUE").split("\\.")[1];
             // columns in the database are in camelCase by project's convention
-            String humanCase = camelCaseToHumanCase(column);
+            String humanCase = StringUtils.camelCaseToHumanCase(column);
             return "supplied value for " + humanCase + " is not unique";
         }
         if (isMessageForConstraint(message, "NOTNULL")) {
             String column = getProblem(message, "NOTNULL").split("\\.")[1];
-            String humanCase = camelCaseToHumanCase(column);
+            String humanCase = StringUtils.camelCaseToHumanCase(column);
             return "supplied value for " + humanCase + " is null";
         }
         if (isMessageForConstraint(message, "FOREIGNKEY")) {
@@ -40,21 +42,9 @@ public class ConstraintExceptionAdapter {
     }
 
     private static String getProblem(String message, String constraintName) {
-        String backTrimmed = message.substring(
-            ("[SQLITE_CONSTRAINT_" + constraintName + "] A " + constraintName + " constraint failed (" + constraintName
-                + " constraint failed: ").length()); // remove not very readable prefix
+        String backTrimmed =
+            message.substring(("[SQLITE_CONSTRAINT_" + constraintName + "] A " + constraintName + " constraint failed ("
+                + constraintName + " constraint failed: ").length()); // remove not very readable prefix
         return backTrimmed.substring(0, backTrimmed.length() - 1); // remove trailing ")"
-    }
-
-    public static String camelCaseToHumanCase(String camelCase) {
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < camelCase.length(); i++) {
-            char currentChar = camelCase.charAt(i);
-            if (Character.isUpperCase(currentChar) && i != 0) {
-                result.append(" ");
-            }
-            result.append(Character.toLowerCase(currentChar));
-        }
-        return result.toString();
     }
 }

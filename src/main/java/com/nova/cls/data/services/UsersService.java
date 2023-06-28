@@ -1,7 +1,8 @@
 package com.nova.cls.data.services;
 
+import com.nova.cls.exceptions.DatabaseFailureException;
+import com.nova.cls.exceptions.request.NotFoundException;
 import com.nova.cls.data.models.User;
-import com.nova.cls.data.exceptions.request.NotFoundException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +15,6 @@ public class UsersService extends CrudService<User> {
     private static final String ID_NAME = "userId";
     private static final String[] READ_FIELDS = new String[] {"userId", "login", "passwordHash"};
     private static final String[] CREATE_FIELDS = Arrays.copyOfRange(READ_FIELDS, 1, READ_FIELDS.length);
-
     private static final String[] UPDATE_FIELDS = Arrays.copyOf(CREATE_FIELDS, CREATE_FIELDS.length);
 
     private final PreparedStatement findPasswordHashByLogin;

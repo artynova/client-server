@@ -1,6 +1,8 @@
 package com.nova.cls.data.models;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.nova.cls.data.Views;
+import com.nova.cls.util.StringUtils;
 
 import java.util.Objects;
 
@@ -65,7 +67,7 @@ public class Group {
 
     @Override
     public String toString() {
-        return "Group {" + "groupId=" + getGroupId() + ", groupName='" + getGroupName() + '\'' + ", description='"
-            + getDescription() + '\'' + '}';
+        return "Group { groupId = " + getGroupId() + ", groupName = " + StringUtils.wrap(getGroupName())
+            + ", description = " + StringUtils.wrap(getDescription()) + " }";
     }
 }

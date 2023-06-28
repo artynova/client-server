@@ -6,20 +6,30 @@ package com.nova.cls.data.services.criteria;
  *
  * @param <Model> Model class, to avoid mixing up criteria.
  */
-public class Criterion<Model> {
+public abstract class Criterion<Model, Type> {
+    private Type value;
     private final String sql;
-    private final Object[] values;
+    private final String queryParamName;
 
-    public Criterion(String sql, Object... values) {
+    public Criterion(Type value, String sql, String queryParamName) {
+        this.value = value;
         this.sql = sql;
-        this.values = values;
+        this.queryParamName = queryParamName;
     }
 
     public String getSql() {
         return sql;
     }
 
-    public Object[] getValues() {
-        return values;
+    public String getQueryParamName() {
+        return queryParamName;
+    }
+
+    public Type getValue() {
+        return value;
+    }
+
+    public void setValue(Type value) {
+        this.value = value;
     }
 }

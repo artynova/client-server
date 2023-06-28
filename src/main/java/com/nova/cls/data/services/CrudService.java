@@ -1,7 +1,8 @@
 package com.nova.cls.data.services;
 
-import com.nova.cls.data.exceptions.request.ConflictException;
-import com.nova.cls.data.exceptions.request.NotFoundException;
+import com.nova.cls.exceptions.DatabaseFailureException;
+import com.nova.cls.exceptions.request.ConflictException;
+import com.nova.cls.exceptions.request.NotFoundException;
 import com.nova.cls.data.services.criteria.Criterion;
 
 import java.sql.Connection;
@@ -72,7 +73,8 @@ public abstract class CrudService<Model> implements AutoCloseable {
     }
 
     private PreparedStatement initUpdateStatement() {
-        String updateQuery = "UPDATE " + tableName + " SET " + Arrays.stream(updateFields).map(field -> field + " = ?")
+        String updateQuery = "UPDATE " + tableName + " SET " + Arrays.stream(updateFields)
+            .map(field -> field + " = ?")
             .collect(Collectors.joining(", ")) + " WHERE " + idName + " = ?;";
         try {
             return connection.prepareStatement(updateQuery);
@@ -101,8 +103,7 @@ public abstract class CrudService<Model> implements AutoCloseable {
             generatedIdSet.next();
             generatedId = generatedIdSet.getLong(idName);
         } catch (SQLException e) {
-            checkConstraintError(e,
-                "Conflict when inserting " + model + " into " + tableName + " table: ");
+            checkConstraintError(e, "Conflict when inserting " + model + " into " + tableName + " table: ");
             throw new DatabaseFailureException(
                 "Failed to create " + model + " in " + tableName + " table: " + e.getMessage(), e);
         }
@@ -170,16 +171,16 @@ public abstract class CrudService<Model> implements AutoCloseable {
         }
     }
 
-    public final List<Model> findAll(List<Criterion<Model>> list) {
+    public final List<Model> findAll(List<? extends Criterion<Model, ?>> list) {
         String filteringPart = list.stream().map(Criterion::getSql).collect(Collectors.joining(" AND "));
         String query = "SELECT " + readFieldsString + " FROM " + tableName + (filteringPart.isEmpty() ? ";"
             : " WHERE " + filteringPart + ";");
         PreparedStatement statement;
         try {
             statement = connection.prepareStatement(query);
-            Object[] values = list.stream().flatMap(criterion -> Arrays.stream(criterion.getValues())).toArray();
-            for (int i = 0; i < values.length; i++) {
-                statement.setObject(i + 1, values[i]);
+            int i = 1;
+            for (Criterion<Model, ?> criterion : list) {
+                statement.setObject(i++, criterion.getValue());
             }
         } catch (SQLException e) {
             throw new DatabaseFailureException("Could not initiate find all " + tableName + " query", e);
