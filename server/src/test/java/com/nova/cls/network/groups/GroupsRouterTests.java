@@ -1,7 +1,7 @@
-package com.nova.cls.network.auth;
+package com.nova.cls.network.groups;
 
 import com.nova.cls.network.Response;
-import com.nova.cls.services.AuthService;
+import com.nova.cls.services.GroupsService;
 import com.nova.cls.util.CloseableThreadLocal;
 import com.nova.cls.util.Decryptor;
 import com.nova.cls.util.Encryptor;
@@ -21,15 +21,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LoginRouterTests {
-    private CloseableThreadLocal<AuthService> authServiceLocal;
+public class GroupsRouterTests {
+    private CloseableThreadLocal<GroupsService> groupsServiceLocal;
     private Encryptor encryptor;
     private Decryptor decryptor;
 
     @Before
     public void setUp() {
         // Set up mock objects
-        authServiceLocal = mock(CloseableThreadLocal.class);
+        groupsServiceLocal = mock(CloseableThreadLocal.class);
         encryptor = mock(Encryptor.class);
         decryptor = mock(Decryptor.class);
     }
@@ -42,12 +42,12 @@ public class LoginRouterTests {
         int responseCode = 200;
         Response response = new Response(responseCode, responseBody);
 
-        LoginRouter router = new LoginRouter(authServiceLocal, encryptor, decryptor);
-        router.getEndpoints()[0] = mock(LoginEndpoint.class);
+        GroupsRouter router = new GroupsRouter(groupsServiceLocal, encryptor, decryptor);
+        router.getEndpoints()[1] = mock(GroupsReadEndpoint.class);
 
         HttpExchange exchange = mock(HttpExchange.class);
         when(exchange.getRequestURI()).thenReturn(Mockito.mock(java.net.URI.class));
-        when(exchange.getRequestURI().getPath()).thenReturn("/login");
+        when(exchange.getRequestURI().getPath()).thenReturn("/api/groups/1");
         when(exchange.getRequestURI().getQuery()).thenReturn(null);
 
         ByteArrayInputStream requestBodyStream = new ByteArrayInputStream(requestBody.getBytes(StandardCharsets.UTF_8));
@@ -55,7 +55,7 @@ public class LoginRouterTests {
 
         when(decryptor.decrypt(any())).thenReturn(new byte[0]);
 
-        when(router.getEndpoints()[0].tryProcess(any(), any(), any(), any())).thenReturn(response);
+        when(router.getEndpoints()[1].tryProcess(any(), any(), any(), any())).thenReturn(response);
 
         byte[] encryptedResponse = responseBody.getBytes(StandardCharsets.UTF_8);
         when(encryptor.encrypt(responseBody.getBytes(StandardCharsets.UTF_8))).thenReturn(encryptedResponse);
@@ -65,7 +65,7 @@ public class LoginRouterTests {
 
         router.handle(exchange);
 
-        Mockito.verify(router.getEndpoints()[0]).tryProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        Mockito.verify(router.getEndpoints()[1]).tryProcess(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.verify(encryptor).encrypt(responseBody.getBytes(StandardCharsets.UTF_8));
         Mockito.verify(responseBodyStream).write(encryptedResponse);
         Mockito.verify(responseBodyStream).flush();
@@ -80,12 +80,16 @@ public class LoginRouterTests {
         String responseBody = "Unknown route";
         int responseCode = 404;
 
-        LoginRouter router = new LoginRouter(authServiceLocal, encryptor, decryptor);
-        router.getEndpoints()[0] = mock(LoginEndpoint.class);
+        GroupsRouter router = new GroupsRouter(groupsServiceLocal, encryptor, decryptor);
+        router.getEndpoints()[0] = mock(GroupsCreateEndpoint.class);
+        router.getEndpoints()[1] = mock(GroupsReadEndpoint.class);
+        router.getEndpoints()[2] = mock(GroupsReadManyEndpoint.class);
+        router.getEndpoints()[3] = mock(GroupsUpdateEndpoint.class);
+        router.getEndpoints()[4] = mock(GroupsDeleteEndpoint.class);
 
         HttpExchange exchange = mock(HttpExchange.class);
         when(exchange.getRequestURI()).thenReturn(Mockito.mock(java.net.URI.class));
-        when(exchange.getRequestURI().getPath()).thenReturn("/login/test");
+        when(exchange.getRequestURI().getPath()).thenReturn("/api/groups/test");
         when(exchange.getRequestURI().getQuery()).thenReturn(null);
 
         ByteArrayInputStream requestBodyStream = new ByteArrayInputStream(requestBody.getBytes(StandardCharsets.UTF_8));

@@ -23,7 +23,6 @@ public class GoodsOffsetQuantityEndpoint extends Endpoint {
     protected Response process(Map<String, String> routeParams, Map<String, String> queryParams, String body)
         throws Exception {
         goodsServiceLocal.get().offsetQuantity(Long.parseLong(routeParams.get("id")), Long.parseLong(body));
-        System.err.println("hello?");
         return new Response(HttpCode.NO_CONTENT);
     }
 }

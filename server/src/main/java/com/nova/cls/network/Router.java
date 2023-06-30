@@ -30,7 +30,6 @@ public abstract class Router implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            System.err.println("Router " + this.getClass() + " accepting " + exchange.getRequestURI());
             Response response = null;
             // computing all values that endpoints will be checking, once
             String[] subrouteSegments = exchange.getRequestURI().getPath().substring(baseRoute.length()).split("/");
@@ -60,8 +59,6 @@ public abstract class Router implements HttpHandler {
             OutputStream out = exchange.getResponseBody();
             if (response.getBody().length() > 0) {
                 out.write(bytes);
-                System.err.println(new String(bytes, StandardCharsets.UTF_8));
-                System.err.println(bytes.length);
             }
             out.flush();
             exchange.close();
