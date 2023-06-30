@@ -5,6 +5,7 @@ import com.nova.cls.data.models.Good;
 import com.nova.cls.data.models.Group;
 import com.nova.cls.data.models.User;
 import com.nova.cls.exceptions.ClientFailureException;
+import com.nova.cls.exceptions.NoConnectionException;
 import com.nova.cls.exceptions.RequestFailureException;
 import com.nova.cls.network.GoodsClient;
 import com.nova.cls.network.GroupsClient;
@@ -222,6 +223,7 @@ public class AppWindow extends JFrame {
             String manufacturer = editGoodManufacturerField.getText();
             String description = editGoodDescriptionField.getText();
             Long price = (long) (int) editGoodPriceField.getValue();
+            System.out.println(state.getCurrentGoodId());
             Good good = new Good(state.getCurrentGoodId(), name, description, manufacturer, price);
             try {
                 goodsClient.update(good);
@@ -256,9 +258,17 @@ public class AppWindow extends JFrame {
             }
         });
 
-        searchButton.addActionListener(e -> {
-            // TODO
-        });
+        searchButton.addActionListener(e -> state.getBreadcrumbs().visit(() -> {
+            List<Good> queryGoods;
+            try {
+                queryGoods = goodsClient.findAll(Map.of("namePrefix", searchField.getText()));
+            } catch (Exception exception) {
+                reactToUsageException(exception);
+                return;
+            }
+            goodsView(queryGoods, true);
+            cardLayout.show(content, "goods");
+        }));
 
         backButton.addActionListener(e -> {
             if (state.getBreadcrumbs().atRoot()) {
@@ -283,9 +293,15 @@ public class AppWindow extends JFrame {
     }
 
     private void reactToUsageException(Exception e) {
-        if (e instanceof ClientFailureException) {
+        if (e instanceof NoConnectionException) {
             JOptionPane.showMessageDialog(this,
-                "Client has failed, we apologize for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
+                "Cannot connect to the server",
+                "No connection",
+                JOptionPane.ERROR_MESSAGE);
+        }
+        else if (e instanceof ClientFailureException) {
+            JOptionPane.showMessageDialog(this,
+                "Client has failed, sorry for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
                     + e.getMessage(),
                 "Client error",
                 JOptionPane.ERROR_MESSAGE);
@@ -301,14 +317,14 @@ public class AppWindow extends JFrame {
                 return;
             } else {
                 JOptionPane.showMessageDialog(this,
-                    "Server has failed, we apologize for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
+                    "Server has failed, sorry for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
                         + e.getMessage(),
                     "Server error",
                     JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(this,
-                "Unrecognized error occurred, we apologize for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
+                "Unrecognized error occurred, sorry for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
                     + e.getMessage(),
                 "??? error",
                 JOptionPane.ERROR_MESSAGE);
@@ -453,9 +469,6 @@ public class AppWindow extends JFrame {
     }
 
     private void goodsView(List<Good> goods, boolean search) {
-        if (!search) {
-            isSearch = false;
-        }
         goodsPage.removeAll();
         GridBagLayout layout = new GridBagLayout();
         goodsPage.setLayout(layout);
@@ -471,7 +484,7 @@ public class AppWindow extends JFrame {
         JLabel label;
         if (search) {
             // TODO search
-            label = new JLabel("\"" + searchField.getText() + "\" search results", SwingConstants.CENTER);
+            label = new JLabel("Search results", SwingConstants.CENTER);
         } else {
             Group group;
             try {
@@ -516,7 +529,6 @@ public class AppWindow extends JFrame {
                 }
                 state.setCurrentGoodId(id);
                 manageGoodNameLabel.setText(good.getGoodName() + " - " + good.getQuantity());
-                manageGoodNameLabel.setFont(new Font("Calibri", Font.PLAIN, 20));
                 cardLayout.show(content, "manageGood");
             }));
 
@@ -534,11 +546,11 @@ public class AppWindow extends JFrame {
 
 
             editButton.addActionListener(e -> state.getBreadcrumbs().visit(() -> {
-                Group group;
                 Good good;
+                Group group;
                 try {
-                    group = groupsClient.findOne(state.getCurrentGroupId());
                     good = goodsClient.findOne(id); // original values may no longer be valid by the time user presses
+                    group = groupsClient.findOne(good.getGroupId());
                 } catch (Exception exception) {
                     reactToUsageException(exception);
                     return;
@@ -547,7 +559,7 @@ public class AppWindow extends JFrame {
                 editGoodNameField.setText(good.getGoodName());
                 editGoodDescriptionField.setText(good.getDescription());
                 editGoodManufacturerField.setText(good.getManufacturer());
-                editGoodPriceField.setValue(good.getPrice());
+                editGoodPriceField.setValue((int) (long) good.getPrice());
                 cardLayout.show(content, "editGood");
             }));
 
@@ -576,7 +588,7 @@ public class AppWindow extends JFrame {
         gc.weightx = 1;
         gc.gridx = 0;
         gc.gridy = 2 * goods.size() + 1;
-        if (!isSearch) {
+        if (!search) {
             goodsPage.add(addGoodButton, gc);
 
         }

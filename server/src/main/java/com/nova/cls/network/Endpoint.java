@@ -58,7 +58,6 @@ public abstract class Endpoint {
      */
     public Response tryProcess(String method, String[] subrouteSegments, String[] queryParamsValues, String body) {
         try {
-            System.out.println("Endpoint " + this.getClass() + " accepting " + method + Arrays.toString(subrouteSegments));
             if (!httpMethod.name().equalsIgnoreCase(method)) {
                 return null; // wrong method
             }

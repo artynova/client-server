@@ -2,6 +2,7 @@ package com.nova.cls.app;
 
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.nova.cls.exceptions.ClientFailureException;
+import com.nova.cls.exceptions.NoConnectionException;
 import com.nova.cls.exceptions.RequestFailureException;
 import com.nova.cls.network.LoginClient;
 import com.nova.cls.network.Session;
@@ -73,7 +74,7 @@ public class LoginDialog extends JDialog {
         Session session;
         try {
             session = client.login(loginField.getText(), new String(passwordField.getPassword()));
-        } catch (RequestFailureException | ClientFailureException e) {
+        } catch (RequestFailureException | ClientFailureException | NoConnectionException e) {
             JOptionPane.showMessageDialog(this, e.getMessage(), "Login unsuccessful", JOptionPane.ERROR_MESSAGE);
             return;
         }

@@ -1,11 +1,13 @@
 package com.nova.cls.network;
 
 import com.nova.cls.exceptions.ClientFailureException;
+import com.nova.cls.exceptions.NoConnectionException;
 import com.nova.cls.exceptions.RequestFailureException;
 import com.nova.cls.util.Decryptor;
 import com.nova.cls.util.Encryptor;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -75,8 +77,6 @@ public abstract class Client {
             if (response.body().length == 0) {
                 return "";
             }
-            System.out.println(response.statusCode());
-            System.out.println(response.body().length);
             String stringResponse;
             try {
                 stringResponse = new String(decryptor.decrypt(response.body()), StandardCharsets.UTF_8);
@@ -87,6 +87,8 @@ public abstract class Client {
                 throw new RequestFailureException(stringResponse, response.statusCode());
             }
             return stringResponse;
+        } catch (ConnectException e) {
+            throw new NoConnectionException("Cannot reach the server", e);
         } catch (IOException e) {
             throw new ClientFailureException("IO error during HTTP request: " + e.getMessage(), e);
         } catch (InterruptedException e) {
