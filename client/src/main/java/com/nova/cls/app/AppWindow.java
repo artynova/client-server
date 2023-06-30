@@ -223,7 +223,6 @@ public class AppWindow extends JFrame {
             String manufacturer = editGoodManufacturerField.getText();
             String description = editGoodDescriptionField.getText();
             Long price = (long) (int) editGoodPriceField.getValue();
-            System.out.println(state.getCurrentGoodId());
             Good good = new Good(state.getCurrentGoodId(), name, description, manufacturer, price);
             try {
                 goodsClient.update(good);
@@ -298,8 +297,7 @@ public class AppWindow extends JFrame {
                 "Cannot connect to the server",
                 "No connection",
                 JOptionPane.ERROR_MESSAGE);
-        }
-        else if (e instanceof ClientFailureException) {
+        } else if (e instanceof ClientFailureException) {
             JOptionPane.showMessageDialog(this,
                 "Client has failed, sorry for the inconvenience.\nPlease kindly present the following error to an administrator:\n"
                     + e.getMessage(),
@@ -507,7 +505,8 @@ public class AppWindow extends JFrame {
             Good currGood = goods.get(i);
             JButton goodButton = new JButton(
                 currGood.getGoodName() + ", Price: " + toUAHString(currGood.getPrice()) + " UAH, In warehouse: "
-                    + currGood.getQuantity() + ", Total price: " + toUAHString(currGood.getGoodId()));
+                    + currGood.getQuantity() + ", Total price: " + toUAHString(
+                    currGood.getPrice() * currGood.getQuantity()));
             goodButton.setPreferredSize(new Dimension(-1, 35));
             goodButton.setMinimumSize(new Dimension(-1, 35));
             JButton deleteButton = new JButton("Delete");
@@ -555,6 +554,7 @@ public class AppWindow extends JFrame {
                     reactToUsageException(exception);
                     return;
                 }
+                state.setCurrentGoodId(id);
                 editGoodGroupLabel.setText(group.getGroupName());
                 editGoodNameField.setText(good.getGoodName());
                 editGoodDescriptionField.setText(good.getDescription());
@@ -603,7 +603,9 @@ public class AppWindow extends JFrame {
     }
 
     private String toUAHString(Long kop) {
-        return df.format(kop / 100.);
+        long uah = kop / 100;
+        long leftoverKop = kop % 100;
+        return uah + "." + (leftoverKop < 10 ? "0" + leftoverKop : leftoverKop);
     }
 
     private void createUIComponents() {
