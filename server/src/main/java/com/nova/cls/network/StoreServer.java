@@ -32,9 +32,9 @@ public class StoreServer {
     private final CloseableThreadLocal<GoodsService> goodsServiceLocal;
     private final ExecutorService pool;
     private final HttpServer server;
-    private boolean closed = false;
     private final Encryptor encryptor;
     private final Decryptor decryptor;
+    private boolean closed = false;
 
     public StoreServer() throws IOException {
         // data and services

@@ -20,7 +20,9 @@ public class Breadcrumbs {
      * On the example of navigation, this will open the previous visited window.
      */
     public void back() {
-        if (breadcrumbs.size() <= 1) throw new UnsupportedOperationException("Navigating back when already at root");
+        if (breadcrumbs.size() <= 1) {
+            throw new UnsupportedOperationException("Navigating back when already at root");
+        }
         breadcrumbs.remove(breadcrumbs.size() - 1);
         breadcrumbs.get(breadcrumbs.size() - 1).run();
     }
@@ -29,7 +31,9 @@ public class Breadcrumbs {
      * Repeats the latest task (e.g. if tasks are navigations, refreshes current one).
      */
     public void refresh() {
-        if (breadcrumbs.isEmpty()) throw new UnsupportedOperationException("Refreshing with empty breadcrumbs");
+        if (breadcrumbs.isEmpty()) {
+            throw new UnsupportedOperationException("Refreshing with empty breadcrumbs");
+        }
         breadcrumbs.get(breadcrumbs.size() - 1).run();
     }
 

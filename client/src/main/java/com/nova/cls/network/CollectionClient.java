@@ -29,7 +29,8 @@ public abstract class CollectionClient<Model> extends AuthenticatedClient {
 
     public List<Model> findAll(Map<String, String> criteria) throws RequestFailureException {
         try {
-            return mapper.fromReadManyJson(request(HttpMethod.GET, baseRoute + "?" + mapper.toCriteriaParams(criteria)));
+            return mapper.fromReadManyJson(request(HttpMethod.GET,
+                baseRoute + "?" + mapper.toCriteriaParams(criteria)));
         } catch (MapperException e) {
             // same rationale for RuntimeException as in findOne
             throw new RuntimeException(e.getMessage(), e);

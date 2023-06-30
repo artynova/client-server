@@ -12,6 +12,7 @@ import java.io.IOException;
 public class UsersMapper extends ModelMapper<User> {
     private final ObjectReader loginReader;
     private final ObjectWriter loginWriter;
+
     public UsersMapper() {
         super(User.class);
         this.loginReader = mapper.readerWithView(View.Login.class);

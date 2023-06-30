@@ -3,7 +3,6 @@ package com.nova.cls.services;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nova.cls.data.View;
-import com.nova.cls.data.models.Group;
 import com.nova.cls.data.models.User;
 import com.nova.cls.exceptions.DatabaseFailureException;
 import com.nova.cls.util.Hasher;

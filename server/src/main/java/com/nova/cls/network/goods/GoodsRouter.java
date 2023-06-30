@@ -10,7 +10,9 @@ public class GoodsRouter extends Router {
     public static final String BASE_ROUTE = "/api/goods";
 
     public GoodsRouter(CloseableThreadLocal<GoodsService> goodsServiceLocal, Encryptor encryptor, Decryptor decryptor) {
-        super(encryptor, decryptor, BASE_ROUTE,
+        super(encryptor,
+            decryptor,
+            BASE_ROUTE,
             new GoodsCreateEndpoint(goodsServiceLocal),
             new GoodsReadEndpoint(goodsServiceLocal),
             new GoodsReadManyEndpoint(goodsServiceLocal),

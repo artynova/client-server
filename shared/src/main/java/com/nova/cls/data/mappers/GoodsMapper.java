@@ -1,6 +1,5 @@
 package com.nova.cls.data.mappers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nova.cls.data.criteria.Criterion;
 import com.nova.cls.data.criteria.goods.GroupIdCriterion;
 import com.nova.cls.data.criteria.goods.ManufacturerPrefixCriterion;
@@ -10,9 +9,7 @@ import com.nova.cls.data.criteria.goods.MinPriceCriterion;
 import com.nova.cls.data.criteria.goods.MinQuantityCriterion;
 import com.nova.cls.data.criteria.goods.NamePrefixCriterion;
 import com.nova.cls.data.models.Good;
-import com.nova.cls.exceptions.MapperException;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.function.Function;
 

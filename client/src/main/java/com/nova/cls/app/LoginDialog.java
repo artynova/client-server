@@ -66,7 +66,8 @@ public class LoginDialog extends JDialog {
     }
 
     public static void main(String[] args) {
-        LoginDialog dialog = new LoginDialog(new LoginClient(HttpClient.newHttpClient(), new Encryptor(), new Decryptor()));
+        LoginDialog dialog =
+            new LoginDialog(new LoginClient(HttpClient.newHttpClient(), new Encryptor(), new Decryptor()));
         dialog.setVisible(true);
     }
 

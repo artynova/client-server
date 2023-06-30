@@ -16,8 +16,6 @@ import com.nova.cls.network.HttpMethod;
 import com.nova.cls.network.Response;
 import com.nova.cls.services.GoodsService;
 import com.nova.cls.util.CloseableThreadLocal;
-import com.nova.cls.util.Decryptor;
-import com.nova.cls.util.Encryptor;
 
 import java.util.List;
 import java.util.Map;
@@ -37,9 +35,7 @@ public class GoodsReadManyEndpoint extends Endpoint {
     private final GoodsMapper mapper = new GoodsMapper();
 
     public GoodsReadManyEndpoint(CloseableThreadLocal<GoodsService> goodsServiceLocal) {
-        super(HTTP_METHOD,
-            ROUTE,
-            POSSIBLE_QUERY_PARAMS);
+        super(HTTP_METHOD, ROUTE, POSSIBLE_QUERY_PARAMS);
         this.goodsServiceLocal = goodsServiceLocal;
     }
 
