@@ -1,0 +1,10 @@
+[
+  {
+    "login": "artynova",
+    "passwordHash": "password"
+  },
+  {
+    "login": "trosha_b",
+    "passwordHash": "better_password"
+  }
+]
