@@ -25,6 +25,9 @@ replay_pid*
 
 # shade-generated pom
 /dependency-reduced-pom.xml
+client/dependency-reduced-pom.xml
+server/dependency-reduced-pom.xml
+shared/dependency-reduced-pom.xml
 
 # IDEA
 /.idea
@@ -32,7 +35,9 @@ replay_pid*
 
 # build
 /target
-src/main/resources/secret.txt
+client/target
+server/target
+shared/target
 
 # database
 data.db
