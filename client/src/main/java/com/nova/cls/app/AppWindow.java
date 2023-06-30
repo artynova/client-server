@@ -3,7 +3,6 @@ package com.nova.cls.app;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.nova.cls.data.models.Good;
 import com.nova.cls.data.models.Group;
-import com.nova.cls.data.models.User;
 import com.nova.cls.exceptions.ClientFailureException;
 import com.nova.cls.exceptions.NoConnectionException;
 import com.nova.cls.exceptions.RequestFailureException;
@@ -12,10 +11,9 @@ import com.nova.cls.network.GroupsClient;
 import com.nova.cls.network.HttpCode;
 import com.nova.cls.network.LoginClient;
 import com.nova.cls.network.Session;
-import com.nova.cls.util.Decryptor;
-import com.nova.cls.util.Encryptor;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.text.NumberFormatter;
@@ -34,7 +33,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.net.http.HttpClient;
+import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
@@ -156,7 +155,7 @@ public class AppWindow extends JFrame {
 
         statisticsButton.addActionListener(e -> state.getBreadcrumbs().visit(() -> {
             state.getBreadcrumbs().reset();
-            cardLayout.show(content, "statistics");
+            state.getBreadcrumbs().visit(() -> cardLayout.show(content, "statistics"));
         }));
 
         addGroupButton.addActionListener(e -> state.getBreadcrumbs().visit(() -> {
@@ -249,7 +248,7 @@ public class AppWindow extends JFrame {
                 long quantity = (long) (int) manageGoodQuantityField.getValue();
                 goodsClient.offsetQuantity(state.getCurrentGoodId(), quantity);
                 Good good = goodsClient.findOne(state.getCurrentGoodId());
-                manageGoodNameLabel.setText(good.getGoodName() + " - " + good.getQuantity());
+                manageGoodNameLabel.setText("  " + good.getGoodName() + " - " + good.getQuantity());
                 manageGoodPage.revalidate();
                 manageGoodPage.repaint();
             } catch (Exception exception) {
@@ -276,19 +275,19 @@ public class AppWindow extends JFrame {
             state.getBreadcrumbs().back();
         });
 
+        mainPanel.registerKeyboardAction(e -> {
+            if (state.getBreadcrumbs().atRoot()) {
+                return;
+            }
+            state.getBreadcrumbs().back();
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
         setContentPane(mainPanel);
         setExtendedState(STARTUP_EXTENDED_STATE);
         setMinimumSize(MIN_WINDOW_SIZE);
         setTitle(WINDOW_TITLE);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-    }
-
-    public static void main(String[] args) {
-        new AppWindow(new LoginClient(HttpClient.newHttpClient(), new Encryptor(), new Decryptor()),
-            new Session(
-                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhcnR5bm92YSIsImV4cCI6MTY4ODY2MDgwNn0.ejEswxjTsgkN2t-3Q8dnMCm9TijIyV7XVZLQtmo8iOkUWrTKfjmJyakeLf2Rkbj5GT0Id0-nFdlDPB3PvY5yaw",
-                new User(1L, "artynova", "password"))).setVisible(true);
     }
 
     private void reactToUsageException(Exception e) {
@@ -359,6 +358,21 @@ public class AppWindow extends JFrame {
         groupsPage.setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
 
+        List<Good> statsGoods;
+        try {
+            statsGoods = goodsClient.findAll();
+        } catch (Exception exception) {
+            reactToUsageException(exception);
+            return;
+        }
+        long totalQuantity = 0;
+        long totalPrice = 0;
+        for (Good good : statsGoods) {
+            totalQuantity += good.getQuantity();
+            totalPrice += good.getQuantity() * good.getPrice();
+        }
+
+
         gc.insets = new Insets(10, 0, 0, 0);
         gc.fill = GridBagConstraints.HORIZONTAL;
 
@@ -368,6 +382,12 @@ public class AppWindow extends JFrame {
         JLabel label = new JLabel("Groups", SwingConstants.CENTER);
         label.setFont(new Font("Calibri", Font.PLAIN, 20));
         groupsPage.add(label, gc);
+        gc.gridy++;
+        JLabel label2 = new JLabel(
+            "Total goods quantity: " + totalQuantity + "; Total goods value: " + toUAHString(totalPrice) + "UAH",
+            SwingConstants.CENTER);
+        groupsPage.add(label2, gc);
+
         gc.gridwidth = 1;
 
         List<Group> groups;
@@ -430,34 +450,29 @@ public class AppWindow extends JFrame {
 
             gc.weightx = 3;
             gc.gridx = 0;
-            gc.gridy = 2 * i + 1;
+            gc.gridy = 2 * i + 2;
             groupsPage.add(groupButton, gc);
             gc.weightx = 0.5;
 
             gc.gridx = 1;
-            gc.gridy = 2 * i + 1;
+            gc.gridy = 2 * i + 2;
             groupsPage.add(deleteButton, gc);
 
             gc.gridx = 2;
-            gc.gridy = 2 * i + 1;
+            gc.gridy = 2 * i + 2;
             groupsPage.add(editButton, gc);
-
-            gc.gridx = 0;
-            gc.gridy = i + 1 + 1;
-            gc.gridwidth = 1;
         }
-
 
         gc.gridwidth = 3;
         gc.fill = GridBagConstraints.NONE;
         gc.weightx = 1;
         gc.gridx = 0;
-        gc.gridy = 2 * groups.size() + 1;
+        gc.gridy = 2 * groups.size() + 2;
         groupsPage.add(addGroupButton, gc);
 
         JPanel filler = new JPanel();
         filler.setOpaque(false);
-        for (int j = 2 * groups.size() + 1; j <= 2 * groups.size() + 100; j++) {
+        for (int j = 2 * groups.size() + 2; j <= 2 * groups.size() + 101; j++) {
             gc.gridy = j;
             gc.weightx = 1;
             gc.weighty = 10;
@@ -467,6 +482,12 @@ public class AppWindow extends JFrame {
     }
 
     private void goodsView(List<Good> goods, boolean search) {
+        long totalQuantity = 0;
+        long totalPrice = 0;
+        for (Good good : goods) {
+            totalQuantity += good.getQuantity();
+            totalPrice += good.getQuantity() * good.getPrice();
+        }
         goodsPage.removeAll();
         GridBagLayout layout = new GridBagLayout();
         goodsPage.setLayout(layout);
@@ -481,7 +502,6 @@ public class AppWindow extends JFrame {
         gc.anchor = GridBagConstraints.WEST;
         JLabel label;
         if (search) {
-            // TODO search
             label = new JLabel("Search results", SwingConstants.CENTER);
         } else {
             Group group;
@@ -499,14 +519,20 @@ public class AppWindow extends JFrame {
 
         label.setFont(new Font("Calibri", Font.PLAIN, 20));
         goodsPage.add(label, gc);
-        gc.gridwidth = 1;
 
+        gc.gridy = 1;
+        JLabel label2 =
+            new JLabel("Goods quantity: " + totalQuantity + "; Goods value: " + toUAHString(totalPrice) + " UAH",
+                SwingConstants.CENTER);
+        goodsPage.add(label2, gc);
+
+        gc.gridwidth = 1;
         for (int i = 0; i < goods.size(); i++) {
             Good currGood = goods.get(i);
             JButton goodButton = new JButton(
                 currGood.getGoodName() + ", Price: " + toUAHString(currGood.getPrice()) + " UAH, In warehouse: "
                     + currGood.getQuantity() + ", Total price: " + toUAHString(
-                    currGood.getPrice() * currGood.getQuantity()));
+                    currGood.getPrice() * currGood.getQuantity()) + " UAH");
             goodButton.setPreferredSize(new Dimension(-1, 35));
             goodButton.setMinimumSize(new Dimension(-1, 35));
             JButton deleteButton = new JButton("Delete");
@@ -527,7 +553,7 @@ public class AppWindow extends JFrame {
                     return;
                 }
                 state.setCurrentGoodId(id);
-                manageGoodNameLabel.setText(good.getGoodName() + " - " + good.getQuantity());
+                manageGoodNameLabel.setText("  " + good.getGoodName() + " - " + good.getQuantity());
                 cardLayout.show(content, "manageGood");
             }));
 
@@ -566,35 +592,31 @@ public class AppWindow extends JFrame {
             gc.weighty = 0.5;
             gc.weightx = 3;
             gc.gridx = 0;
-            gc.gridy = i + 2;
+            gc.gridy = i + 3;
             goodsPage.add(goodButton, gc);
             gc.weightx = 0.5;
 
             gc.gridx = 1;
-            gc.gridy = i + 2;
+            gc.gridy = i + 3;
             goodsPage.add(deleteButton, gc);
 
             gc.gridx = 2;
-            gc.gridy = i + 2;
+            gc.gridy = i + 3;
             goodsPage.add(editButton, gc);
-
-            gc.gridx = 0;
-            gc.gridy = i + 2 + 1;
-            gc.gridwidth = 1;
         }
 
         gc.gridwidth = 3;
         gc.fill = GridBagConstraints.NONE;
         gc.weightx = 1;
         gc.gridx = 0;
-        gc.gridy = 2 * goods.size() + 1;
+        gc.gridy = 2 * goods.size() + 2;
         if (!search) {
             goodsPage.add(addGoodButton, gc);
 
         }
         JPanel filler = new JPanel();
         filler.setOpaque(false);
-        for (int j = 2 * goods.size() + 1; j <= 2 * goods.size() + 100; j++) {
+        for (int j = 2 * goods.size() + 2; j <= 2 * goods.size() + 101; j++) {
             gc.gridy = j;
             gc.weightx = 1;
             gc.weighty = 10;
@@ -622,6 +644,8 @@ public class AppWindow extends JFrame {
         updateGoodButton = new JButton();
         searchButton = new JButton();
         manageGoodQuantityField = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+        createGoodPriceField = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
+        editGoodPriceField = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
         JFormattedTextField txt = ((JSpinner.NumberEditor) manageGoodQuantityField.getEditor()).getTextField();
         ((NumberFormatter) txt.getFormatter()).setAllowsInvalid(false);
 
